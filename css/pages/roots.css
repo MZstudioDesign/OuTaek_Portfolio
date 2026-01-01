@@ -1,0 +1,1020 @@
+/* ========================================
+   PAGE: ROOTS (뿌리) - Figma Canvas
+   ======================================== */
+.page-roots {
+    background: transparent;
+}
+
+.canvas-controls {
+    position: fixed;
+    bottom: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--black);
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--gray-700);
+    border-radius: 8px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.page-roots.active .canvas-controls {
+    opacity: 1;
+}
+
+.zoom-level {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    min-width: 50px;
+    text-align: center;
+    color: var(--gray-300);
+}
+
+/* Canvas Viewport */
+.canvas-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: grab;
+    background: transparent;
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.1) 1px, transparent 0);
+    background-size: 40px 40px;
+}
+
+.canvas-wrapper:active {
+    cursor: grabbing;
+}
+
+.canvas-content {
+    position: relative;
+    width: 2000px;
+    height: 1500px;
+    transform-origin: 0 0;
+    transition: none;
+}
+
+/* Canvas Help Bar (Direct Display) */
+.canvas-help-bar {
+    position: fixed;
+    top: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    background: rgba(0, 0, 0, 0.8);
+    padding: var(--space-sm) var(--space-lg);
+    border: 1px solid var(--gray-700);
+    border-radius: 50px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.page-roots.active .canvas-help-bar {
+    opacity: 1;
+}
+
+.help-item-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--gray-300);
+}
+
+.help-item-inline .help-icon {
+    font-size: 1.1rem;
+}
+
+/* ------------------------------------- */
+/* Dynamic Root Nodes */
+/* ------------------------------------- */
+.root-node {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid var(--gray-700);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.root-node:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    z-index: 100;
+    border-color: var(--white);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Node Preview (Image) */
+.node-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+    filter: blur(5px) grayscale(100%);
+    transition: all 0.4s ease;
+}
+
+.root-node:hover .node-preview {
+    opacity: 1;
+    filter: blur(0) grayscale(0%);
+}
+
+/* Node Title Text */
+.node-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 10px;
+    pointer-events: none;
+    /* Let clicks pass to node */
+}
+
+.node-title-text {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--white);
+    text-align: center;
+    word-break: keep-all;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+/* Hide text on hover to show image clearly, or style it differently */
+.root-node:hover .node-title-text {
+    opacity: 0;
+}
+
+.node-icon {
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+/* ------------------------------------- */
+/* Mindmap Nodes (Clean Architecture)   */
+/* ------------------------------------- */
+.canvas-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid var(--gray-700);
+    border-radius: 50%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.canvas-node:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+    z-index: 100;
+    border-color: var(--white);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Depth-based sizing */
+.canvas-node.depth-0 {
+    /* Center Node */
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid var(--white);
+    font-size: 1rem;
+}
+
+.canvas-node.depth-1 {
+    /* Primary Branches */
+    width: 100px;
+    height: 100px;
+}
+
+.canvas-node.depth-2 {
+    width: 80px;
+    height: 80px;
+}
+
+.canvas-node.depth-3 {
+    width: 60px;
+    height: 60px;
+}
+
+.canvas-node.depth-4 {
+    width: 45px;
+    height: 45px;
+}
+
+/* Node with preview image */
+.canvas-node .node-preview {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.4;
+    filter: grayscale(100%);
+    transition: all 0.3s;
+}
+
+.canvas-node:hover .node-preview {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
+/* Node Label */
+.node-label {
+    position: relative;
+    z-index: 2;
+    font-size: 0.65rem;
+    color: var(--white);
+    text-align: center;
+    padding: 5px;
+    word-break: keep-all;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    transition: opacity 0.3s;
+}
+
+.canvas-node.depth-0 .node-label {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.canvas-node.depth-1 .node-label {
+    font-size: 0.7rem;
+}
+
+.canvas-node.depth-4 .node-label {
+    font-size: 0.55rem;
+}
+
+.canvas-node:hover .node-label.has-image {
+    opacity: 0;
+    /* Hide label on hover if there's an image */
+}
+
+/* Simple dot for text-only nodes */
+.node-point {
+    width: 8px;
+    height: 8px;
+    background: var(--gray-500);
+    border-radius: 50%;
+    margin-bottom: 5px;
+}
+
+/* ------------------------------------- */
+/* Connection Lines (SVG) */
+/* ------------------------------------- */
+.connections-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.connection-line {
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 1px;
+    fill: none;
+}
+
+/* ------------------------------------- */
+/* Page Detail Modal - Premium Design    */
+/* ------------------------------------- */
+.page-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.page-modal.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    background: linear-gradient(180deg, rgba(25, 25, 35, 0.98) 0%, rgba(15, 15, 20, 0.99) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(0.95) translateY(20px);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-modal.active .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: var(--gray-300);
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+    transform: rotate(90deg);
+}
+
+.modal-header {
+    padding: 32px 40px 24px;
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modal-title {
+    font-family: var(--font-body);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+    padding-right: 60px;
+    background: linear-gradient(135deg, #fff, #aaa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px 40px;
+}
+
+/* Scrollbar Styling */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Images Grid */
+.modal-images {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.modal-images img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Text Content */
+.modal-text {
+    color: var(--gray-200);
+    line-height: 1.9;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+}
+
+.modal-text p {
+    margin-bottom: 1.5em;
+}
+
+.modal-text p:first-child {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 400;
+    line-height: 1.8;
+}
+
+/* Empty State */
+.modal-empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    color: var(--gray-500);
+    font-size: 1rem;
+}
+
+.modal-empty-state::before {
+    content: "📭";
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* Link Button */
+.modal-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #fff, #e0e0e0);
+    color: var(--black);
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 50px;
+    margin-top: 24px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.modal-link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+}
+
+/* ------------------------------------- */
+/* Novel Layout (My Beliefs)             */
+/* ------------------------------------- */
+.novel-layout-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 0 60px;
+}
+
+.novel-layout-wrapper p {
+    font-size: 1.15rem;
+    line-height: 1.9;
+    margin-bottom: 2.5rem;
+    /* Distinct separation */
+    color: var(--gray-200);
+    letter-spacing: -0.01em;
+    word-break: keep-all;
+    /* Korean readability */
+}
+
+/* First paragraph styling */
+.novel-layout-wrapper p:first-of-type {
+    font-size: 1.3rem;
+    color: var(--white);
+    margin-bottom: 3.5rem;
+}
+
+.novel-inline-img {
+    display: block;
+    width: 100%;
+    max-width: 240px;
+    /* Much smaller as requested */
+    height: auto;
+    margin: 4rem auto;
+    /* Centered with generous spacing */
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    filter: grayscale(100%);
+    /* Start black and white */
+}
+
+.novel-inline-img:hover {
+    opacity: 1;
+    filter: grayscale(0%);
+    /* Color on hover */
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .novel-layout-wrapper p {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+}
+
+/* ------------------------------------- */
+/* Rich Media Content (Links & Video)    */
+/* ------------------------------------- */
+
+/* FLOATING LINK TOAST (Widget) */
+.link-toast-container {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    pointer-events: none;
+    /* Allow clicks through empty space */
+}
+
+.link-toast {
+    display: flex;
+    align-items: center;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 12px;
+    width: 320px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(20px);
+    opacity: 0;
+    animation: toastSlideUp 0.6s 0.3s forwards;
+    pointer-events: auto;
+}
+
+.link-toast:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(30, 30, 30, 0.95);
+    border-color: var(--accent-primary);
+    box-shadow: 0 15px 50px rgba(167, 139, 250, 0.2);
+}
+
+.link-toast-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #333;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.link-toast-content {
+    margin-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.link-toast-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.link-toast-domain {
+    font-size: 0.75rem;
+    color: var(--accent-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.link-toast-domain::before {
+    content: '🔗';
+    margin-right: 4px;
+    font-size: 0.8em;
+}
+
+@keyframes toastSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Video Toast Specifics - Large Vertical Card */
+.video-toast-card {
+    width: 320px;
+    /* Match regular link toast width */
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: auto;
+}
+
+.video-toast-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: #f00;
+    box-shadow: 0 15px 50px rgba(255, 0, 0, 0.2);
+}
+
+.video-toast-preview {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-size: cover;
+    background-position: center;
+    background-color: #111;
+    position: relative;
+}
+
+.video-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.video-toast-card:hover .video-play-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.video-play-btn {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 0, 0, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+}
+
+.video-toast-card:hover .video-play-btn {
+    transform: scale(1.1);
+    background: #f00;
+}
+
+.video-toast-label {
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--gray-200);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* ------------------------------------- */
+/* Video Overlay Modal (Nested)          */
+/* ------------------------------------- */
+.video-overlay-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.video-overlay-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.video-overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+}
+
+.video-overlay-content {
+    position: relative;
+    width: 90%;
+    max-width: 900px;
+    transform: translateY(30px) scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.video-overlay-modal.active .video-overlay-content {
+    transform: translateY(0) scale(1);
+}
+
+.video-overlay-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.video-overlay-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.video-iframe-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    /* 16:9 */
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+}
+
+.video-iframe-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Video Embed in Flow (Legacy/Fallback) */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 3rem 0;
+    background: #000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 768px) {
+    .link-toast-container {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        left: 1.5rem;
+        /* Full width on mobile */
+        align-items: center;
+    }
+
+    .link-toast {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+/* ------------------------------------- */
+/* Gallery View (Detailed Portfolio)     */
+/* ------------------------------------- */
+.gallery-search-container {
+    margin-bottom: 1.5rem;
+}
+
+.gallery-search-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--white);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.gallery-search-input:focus {
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.gallery-search-input::placeholder {
+    color: var(--gray-500);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.gallery-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-primary);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.gallery-title {
+    padding: 10px;
+    font-size: 0.8rem;
+    color: var(--gray-200);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--gray-500);
+}
+
+/* Detail View */
+.detail-back-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--gray-300);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.2s;
+}
+
+.detail-back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+}
+
+.detail-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--white);
+}
+
+.detail-images {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+}
+
+.detail-img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    /* Mobile Toast - Bottom Bar with Horizontal Scroll */
+    .link-toast-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 200;
+        flex-direction: row;
+        gap: 12px;
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .link-toast-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .link-toast {
+        flex-shrink: 0;
+        width: 200px;
+        padding: 10px;
+        transform: none;
+        opacity: 1;
+        animation: none;
+    }
+
+    .link-toast-thumb {
+        width: 50px;
+        height: 50px;
+    }
+
+    .link-toast-title {
+        font-size: 0.85rem;
+    }
+
+    .link-toast-domain {
+        font-size: 0.7rem;
+    }
+
+    /* Mobile Video Toast Card */
+    .video-toast-card {
+        flex-shrink: 0;
+        width: 180px;
+    }
+
+    .video-toast-label {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    .video-play-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+
+    /* Video Overlay Modal Mobile */
+    .video-overlay-content {
+        width: 95%;
+        max-width: none;
+    }
+
+    .video-overlay-close {
+        top: -45px;
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,797 @@
+/* ========================================
+   Premium Animations
+   Apple-like Cinematic Effects
+   Branch / Stem / Roots Concept
+   ======================================== */
+
+/* ===========================
+   Global Animation Utilities
+   =========================== */
+
+/* Staggered Fade In */
+.stagger-fade-in>* {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: staggerFadeIn var(--duration-slower) var(--ease-out-expo) forwards;
+}
+
+.stagger-fade-in>*:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.stagger-fade-in>*:nth-child(2) {
+    animation-delay: 100ms;
+}
+
+.stagger-fade-in>*:nth-child(3) {
+    animation-delay: 200ms;
+}
+
+.stagger-fade-in>*:nth-child(4) {
+    animation-delay: 300ms;
+}
+
+.stagger-fade-in>*:nth-child(5) {
+    animation-delay: 400ms;
+}
+
+.stagger-fade-in>*:nth-child(6) {
+    animation-delay: 500ms;
+}
+
+@keyframes staggerFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Smooth Reveal */
+.reveal-up {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity var(--duration-slower) var(--ease-out-expo),
+        transform var(--duration-slower) var(--ease-out-expo);
+}
+
+.reveal-up.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Scale Reveal */
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity var(--duration-slower) var(--ease-out-expo),
+        transform var(--duration-slower) var(--ease-out-expo);
+}
+
+.reveal-scale.revealed {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ===========================
+   BRANCHES (가지) Animations
+   Extending, flowing, wind-blown
+   =========================== */
+
+/* Panel Entry - Branch grows in */
+.h-panel {
+    opacity: 0;
+    transform: translateX(100px) scale(0.95);
+    transition: opacity var(--duration-slower) var(--ease-out-expo),
+        transform var(--duration-slower) var(--ease-out-expo);
+}
+
+.h-panel.in-view {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+/* Work Panel - Gentle sway like wind */
+.work-panel {
+    --sway-amount: 2deg;
+}
+
+.work-panel:hover {
+    animation: gentleSway 3s ease-in-out infinite;
+}
+
+@keyframes gentleSway {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(calc(var(--sway-amount) * 0.5));
+    }
+
+    50% {
+        transform: rotate(calc(var(--sway-amount) * -0.5));
+    }
+
+    75% {
+        transform: rotate(calc(var(--sway-amount) * 0.3));
+    }
+}
+
+/* Image Frame - Branch extends on hover */
+.image-frame {
+    position: relative;
+    overflow: hidden;
+}
+
+.image-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
+    transition: left var(--duration-slower) var(--ease-out-expo);
+}
+
+.work-panel:hover .image-frame::before {
+    left: 100%;
+}
+
+/* Work Info - Grow from left like a branch */
+.work-info {
+    position: relative;
+}
+
+.work-info::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--white), transparent);
+    transition: width var(--duration-slow) var(--ease-out-expo);
+}
+
+.work-panel:hover .work-info::before {
+    width: 100%;
+}
+
+/* Work Number - Pulse glow (no opacity change to respect base color) */
+.work-number {
+    animation: subtleGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes subtleGlow {
+    0% {
+        text-shadow: 0 0 0 transparent;
+    }
+
+    100% {
+        text-shadow: 0 0 80px rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* Scroll Hint Arrow - Pulsing */
+.scroll-arrow {
+    animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+
+    0%,
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(10px);
+        opacity: 0.5;
+    }
+}
+
+/* ===========================
+   STEM (줄기) Animations
+   Growing, flowing energy
+   =========================== */
+
+/* Name Reveal - Grow from center */
+/* Note: overflow:hidden was removed from .mega-name as it was clipping text */
+
+.mega-name .name-main {
+    display: inline-block;
+    /* Animation plays on page load - uses fallback if variable undefined */
+    animation: stemGrowIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.3s;
+}
+
+@keyframes stemGrowIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+        filter: blur(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* Statement Text - Line by line reveal */
+.statement-text {
+    --line-delay: 150ms;
+}
+
+/* Rotating Text - Smooth 3D flip */
+.rotate-viewport {
+    perspective: 1000px;
+}
+
+.rotate-item {
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    transition: transform var(--duration-slow) var(--ease-out-expo),
+        opacity var(--duration-base);
+}
+
+.rotate-item.active {
+    animation: textFlipIn 0.6s var(--ease-out-expo) forwards;
+}
+
+.rotate-item.exiting {
+    animation: textFlipOut 0.6s var(--ease-out-expo) forwards;
+}
+
+@keyframes textFlipIn {
+    0% {
+        opacity: 0;
+        transform: rotateX(90deg) translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: rotateX(0) translateY(0);
+    }
+}
+
+@keyframes textFlipOut {
+    0% {
+        opacity: 1;
+        transform: rotateX(0) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotateX(-90deg) translateY(-20px);
+    }
+}
+
+/* Point Items - Staggered fade with line */
+/* Auto-animate on page load without requiring .visible class */
+.point-item {
+    position: relative;
+    animation: pointSlideIn 0.8s var(--ease-out-expo) both;
+}
+
+.point-item:nth-child(1) {
+    animation-delay: 0.5s;
+}
+
+.point-item:nth-child(2) {
+    animation-delay: 0.65s;
+}
+
+.point-item:nth-child(3) {
+    animation-delay: 0.8s;
+}
+
+@keyframes pointSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Point Number - Counter animation */
+.point-num {
+    position: relative;
+    overflow: hidden;
+}
+
+.point-num::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-slow) var(--ease-out-expo);
+}
+
+.point-item:hover .point-num::after {
+    transform: scaleX(1);
+}
+
+/* Career Cards - Slide and stack */
+.career-card {
+    transition: transform var(--duration-slower) var(--ease-out-expo),
+        opacity var(--duration-base),
+        box-shadow var(--duration-base);
+}
+
+.career-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+.career-card .card-inner {
+    transition: transform var(--duration-slow) var(--ease-spring);
+}
+
+.career-card:hover .card-inner {
+    transform: scale(1.05);
+}
+
+/* ===========================
+   ROOTS (뿌리) Animations
+   Spreading, pulsing, connected
+   =========================== */
+
+/* Node Entry - Roots spreading */
+.mindmap-node {
+    opacity: 0;
+    transform: scale(0);
+    animation: rootSpread 0.8s var(--ease-spring) forwards;
+}
+
+/* Staggered node appearance */
+.mindmap-node:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.mindmap-node:nth-child(2) {
+    animation-delay: 50ms;
+}
+
+.mindmap-node:nth-child(3) {
+    animation-delay: 100ms;
+}
+
+.mindmap-node:nth-child(4) {
+    animation-delay: 150ms;
+}
+
+.mindmap-node:nth-child(5) {
+    animation-delay: 200ms;
+}
+
+.mindmap-node:nth-child(6) {
+    animation-delay: 250ms;
+}
+
+.mindmap-node:nth-child(7) {
+    animation-delay: 300ms;
+}
+
+.mindmap-node:nth-child(8) {
+    animation-delay: 350ms;
+}
+
+.mindmap-node:nth-child(9) {
+    animation-delay: 400ms;
+}
+
+.mindmap-node:nth-child(10) {
+    animation-delay: 450ms;
+}
+
+@keyframes rootSpread {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(-10deg);
+    }
+
+    60% {
+        transform: scale(1.1) rotate(2deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Node Hover - Pulse effect */
+.mindmap-node:hover {
+    animation: rootPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rootPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 20px 10px rgba(167, 139, 250, 0.1);
+    }
+}
+
+/* Connection Lines - Draw animation */
+.mindmap-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 1.5s var(--ease-out-expo) forwards;
+}
+
+@keyframes drawLine {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Center Node - Heartbeat */
+.center-node {
+    animation: heartbeat 3s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    5% {
+        transform: scale(1.05);
+    }
+
+    10% {
+        transform: scale(1);
+    }
+
+    15% {
+        transform: scale(1.03);
+    }
+
+    20% {
+        transform: scale(1);
+    }
+}
+
+/* Canvas Zoom - Smooth focus */
+.canvas-content {
+    transition: transform var(--duration-slower) var(--ease-out-expo);
+}
+
+/* ===========================
+   PAGE TRANSITIONS
+   Organic, flowing between states
+   =========================== */
+
+/* Transition Blocks - Wave effect */
+.transition-blocks .t-block {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.6s var(--ease-out-expo);
+}
+
+.page-transition.active .t-block:nth-child(1) {
+    transition-delay: 0ms;
+}
+
+.page-transition.active .t-block:nth-child(2) {
+    transition-delay: 50ms;
+}
+
+.page-transition.active .t-block:nth-child(3) {
+    transition-delay: 100ms;
+}
+
+.page-transition.active .t-block:nth-child(4) {
+    transition-delay: 150ms;
+}
+
+.page-transition.active .t-block:nth-child(5) {
+    transition-delay: 200ms;
+}
+
+.page-transition.active .t-block {
+    transform: scaleY(1);
+}
+
+/* Page Entry */
+.page {
+    transition: opacity var(--duration-slower) var(--ease-out-expo),
+        transform var(--duration-slower) var(--ease-out-expo);
+}
+
+.page:not(.active) {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ===========================
+   MODAL Animations
+   =========================== */
+
+/* Modal Overlay - Fade */
+.modal-overlay {
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-smooth);
+}
+
+.page-modal.active .modal-overlay {
+    opacity: 1;
+}
+
+/* Modal Content - Scale up */
+.modal-content {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+    transition: opacity var(--duration-slow) var(--ease-out-expo),
+        transform var(--duration-slow) var(--ease-out-expo);
+}
+
+.page-modal.active .modal-content {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* Modal Close - Rotate on hover */
+.modal-close {
+    transition: transform var(--duration-base) var(--ease-spring),
+        background var(--duration-fast);
+}
+
+.modal-close:hover {
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* ===========================
+   BUTTON Animations
+   =========================== */
+
+/* Page Transition Button - Magnetic effect prepared */
+.page-transition-btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--duration-base) var(--ease-out-expo),
+        box-shadow var(--duration-base);
+}
+
+/* Note: ::before hover effect defined in buttons.css */
+
+.page-transition-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.page-transition-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Button Arrow - Bounce */
+.btn-arrow {
+    display: inline-block;
+    animation: arrowBounce 2s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(5px);
+    }
+}
+
+/* ===========================
+   COSMIC Background Enhancements
+   =========================== */
+
+/* Nebula Drift */
+.nebula {
+    animation: nebulaDrift 30s ease-in-out infinite alternate;
+}
+
+.nebula-1 {
+    animation-delay: 0s;
+}
+
+.nebula-2 {
+    animation-delay: -15s;
+}
+
+@keyframes nebulaDrift {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translate(5%, 3%) scale(1.1);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translate(-3%, 5%) scale(0.95);
+        opacity: 0.35;
+    }
+}
+
+/* Stars Twinkle */
+.twinkle {
+    animation: starTwinkle 3s ease-in-out infinite;
+}
+
+.twinkle:nth-child(odd) {
+    animation-duration: 2.5s;
+}
+
+.twinkle:nth-child(even) {
+    animation-duration: 3.5s;
+    animation-delay: 0.5s;
+}
+
+@keyframes starTwinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Shooting Stars - Using original style from cosmic-bg.css */
+/* (No override - keeping 15deg horizontal fast movement) */
+
+/* ===========================
+   LOADING Animation Enhancements
+   =========================== */
+
+/* Intro Ring Pulse */
+.intro-ring {
+    animation: ringPulse 2s ease-out infinite;
+}
+
+.intro-ring:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.intro-ring:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.intro-ring:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.intro-ring:nth-child(4) {
+    animation-delay: 1.5s;
+}
+
+@keyframes ringPulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Counter Number */
+.counter-number {
+    font-variant-numeric: tabular-nums;
+    transition: transform var(--duration-fast);
+}
+
+/* ===========================
+   NAVIGATION Animations
+   =========================== */
+
+.nav-item {
+    transition: opacity var(--duration-base),
+        transform var(--duration-base) var(--ease-out-expo);
+}
+
+.nav-item:hover {
+    transform: translateX(-5px);
+}
+
+.nav-line {
+    transition: height var(--duration-slow) var(--ease-spring),
+        background var(--duration-base);
+}
+
+.nav-label {
+    transition: color var(--duration-base),
+        letter-spacing var(--duration-base);
+}
+
+.nav-item:hover .nav-label {
+    letter-spacing: 0.1em;
+}
+
+/* ===========================
+   CURSOR Enhancements
+   =========================== */
+
+.cursor {
+    transition: transform var(--duration-fast) var(--ease-out-expo),
+        opacity var(--duration-fast);
+}
+
+.cursor-follower {
+    transition: transform 0.15s var(--ease-out-expo),
+        width var(--duration-base) var(--ease-spring),
+        height var(--duration-base) var(--ease-spring),
+        border-radius var(--duration-base);
+}
+
+.cursor-follower.hovering {
+    transform: scale(1.5);
+    mix-blend-mode: difference;
+}
+
+/* ===========================
+   SCROLL PROGRESS
+   =========================== */
+
+.h-progress-bar {
+    transition: width 0.1s linear;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+}
+
+/* ===========================
+   Focus States (Accessibility)
+   =========================== */
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 4px;
+}
+
+/* ===========================
+   Selection Styling
+   =========================== */
+
+::selection {
+    background: var(--accent-primary);
+    color: var(--black);
+}

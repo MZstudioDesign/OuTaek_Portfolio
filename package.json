@@ -1,0 +1,24 @@
+{
+  "name": "portfolio-oyutaek",
+  "version": "1.0.0",
+  "description": "오유택 포트폴리오 웹사이트 - 나는 내 가지들로 이루어져 있다",
+  "main": "js/core/app.js",
+  "scripts": {
+    "dev": "npx serve . -l 24433",
+    "build-data": "node scripts/build-data.js",
+    "fetch-notion": "node fetch-notion.js",
+    "generate-json": "node generate_portfolio_json.js"
+  },
+  "keywords": [
+    "portfolio",
+    "design",
+    "notion",
+    "korean"
+  ],
+  "author": "오유택",
+  "license": "MIT",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^17.2.3"
+  }
+}

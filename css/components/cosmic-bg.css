@@ -1,0 +1,336 @@
+/* ========================================
+   Cosmic Background Styles
+   ======================================== */
+
+/* Star Canvas */
+#star-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.cosmic-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #000 70%);
+}
+
+/* Fixed cosmic background for entire page */
+.cosmic-bg.fixed-cosmic {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Milky Way / Galaxy Effect */
+.milky-way {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background:
+        radial-gradient(ellipse 80% 50% at 50% 50%,
+            rgba(255, 255, 255, 0.03) 0%,
+            transparent 50%),
+        radial-gradient(ellipse 60% 40% at 30% 60%,
+            rgba(150, 120, 255, 0.02) 0%,
+            transparent 40%),
+        radial-gradient(ellipse 70% 30% at 70% 40%,
+            rgba(100, 150, 255, 0.02) 0%,
+            transparent 40%);
+    animation: galaxyRotate 120s linear infinite;
+    opacity: 1;
+}
+
+@keyframes galaxyRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Old CSS Stars (Hidden in favor of Canvas) */
+.stars-container,
+.twinkle-stars {
+    display: none;
+}
+
+/* Shooting Stars - Hidden initially, shown after intro */
+.shooting-stars {
+    display: block;
+    opacity: 0;
+    transition: opacity 1s ease-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 50;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+body.intro-complete .shooting-stars {
+    opacity: 1;
+}
+
+.shooting-star {
+    position: absolute;
+    width: 180px;
+    height: 1px;
+    background: linear-gradient(270deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2), transparent);
+    border-radius: 0;
+    opacity: 0;
+    transform: rotate(15deg);
+    animation: shootingStar 8s ease-in-out infinite;
+}
+
+.shooting-star::before {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 50%;
+    right: 0;
+    top: -2px;
+    box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.7);
+}
+
+.shooting-star:nth-child(1) {
+    top: 15%;
+    left: -10%;
+    animation-delay: 2s;
+    animation-duration: 8s;
+}
+
+.shooting-star:nth-child(2) {
+    top: 35%;
+    left: -12%;
+    animation-delay: 10s;
+    animation-duration: 10s;
+    width: 150px;
+}
+
+.shooting-star:nth-child(3) {
+    top: 55%;
+    left: -8%;
+    animation-delay: 20s;
+    animation-duration: 9s;
+    width: 200px;
+}
+
+.shooting-star:nth-child(4) {
+    top: 25%;
+    left: -10%;
+    animation-delay: 30s;
+    animation-duration: 11s;
+    width: 160px;
+}
+
+.shooting-star:nth-child(5) {
+    top: 45%;
+    left: -6%;
+    animation-delay: 40s;
+    animation-duration: 8s;
+    width: 170px;
+}
+
+@keyframes shootingStar {
+    0% {
+        opacity: 0;
+        transform: rotate(15deg) translateX(0);
+    }
+
+    5% {
+        opacity: 0.8;
+    }
+
+    70% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(15deg) translateX(120vw);
+    }
+}
+
+/* Nebula Glow */
+.nebula {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 1;
+    animation: nebulaFloat 15s ease-in-out infinite;
+}
+
+.nebula-1 {
+    background: radial-gradient(circle, rgba(100, 50, 200, 0.15) 0%, transparent 70%);
+    top: -20%;
+    right: -10%;
+}
+
+.nebula-2 {
+    background: radial-gradient(circle, rgba(50, 100, 200, 0.1) 0%, transparent 70%);
+    bottom: -20%;
+    left: -10%;
+    animation-delay: 5s;
+}
+
+@keyframes nebulaFloat {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(30px, 20px) scale(1.1);
+    }
+}
+
+/* Static Stars */
+.stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, white, transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.6), transparent),
+        radial-gradient(1px 1px at 160px 120px, white, transparent),
+        radial-gradient(2px 2px at 200px 50px, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(1px 1px at 240px 150px, white, transparent),
+        radial-gradient(2px 2px at 280px 90px, rgba(255, 255, 255, 0.7), transparent),
+        radial-gradient(1px 1px at 320px 200px, white, transparent),
+        radial-gradient(2px 2px at 360px 130px, rgba(255, 255, 255, 0.8), transparent);
+    background-size: 400px 250px;
+    animation: starsMove 100s linear infinite;
+    opacity: 1;
+}
+
+.stars:nth-child(2) {
+    background-position: 50px 80px;
+    background-size: 450px 280px;
+    animation-duration: 120s;
+    animation-delay: 0.5s;
+}
+
+.stars:nth-child(3) {
+    background-position: 100px 30px;
+    background-size: 350px 220px;
+    animation-duration: 80s;
+    animation-delay: 1s;
+}
+
+@keyframes starsMove {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 400px 250px;
+    }
+}
+
+/* Twinkling Stars */
+.twinkle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle 3s ease-in-out infinite;
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.5);
+}
+
+.twinkle:nth-child(1) {
+    top: 10%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.twinkle:nth-child(2) {
+    top: 25%;
+    left: 85%;
+    animation-delay: 0.5s;
+}
+
+.twinkle:nth-child(3) {
+    top: 40%;
+    left: 30%;
+    animation-delay: 1s;
+}
+
+.twinkle:nth-child(4) {
+    top: 60%;
+    left: 70%;
+    animation-delay: 1.5s;
+}
+
+.twinkle:nth-child(5) {
+    top: 75%;
+    left: 20%;
+    animation-delay: 2s;
+}
+
+.twinkle:nth-child(6) {
+    top: 15%;
+    left: 60%;
+    animation-delay: 2.5s;
+}
+
+.twinkle:nth-child(7) {
+    top: 85%;
+    left: 45%;
+    animation-delay: 0.8s;
+}
+
+.twinkle:nth-child(8) {
+    top: 50%;
+    left: 90%;
+    animation-delay: 1.3s;
+}
+
+.twinkle:nth-child(9) {
+    top: 35%;
+    left: 5%;
+    animation-delay: 1.8s;
+}
+
+.twinkle:nth-child(10) {
+    top: 70%;
+    left: 55%;
+    animation-delay: 2.3s;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}

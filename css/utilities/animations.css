@@ -1,0 +1,72 @@
+/* ========================================
+   Animation Utilities
+   ======================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Page Cosmic Background (Shared) */
+.page-cosmic-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 0%, #0a0a15 0%, #000 70%);
+}
+
+/* Stem Page SVG */
+.stem-svg {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.6;
+    z-index: 1;
+}
+
+.stem-svg .stem-line {
+    animation: stemGlow 4s ease-in-out infinite alternate;
+}
+
+.stem-svg .stem-center {
+    stroke-dasharray: 10 5;
+    animation: stemFlow 20s linear infinite;
+}
+
+@keyframes stemGlow {
+    from {
+        opacity: 0.3;
+    }
+
+    to {
+        opacity: 0.6;
+    }
+}
+
+@keyframes stemFlow {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -100;
+    }
+}
+
+/* 3D Transform Effects */
+.page-stem .section-content,
+.page-roots .canvas-wrapper {
+    perspective: 1000px;
+}

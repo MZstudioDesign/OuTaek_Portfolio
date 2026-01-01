@@ -1,0 +1,393 @@
+/* ========================================
+   Responsive Styles - Mobile First
+   Apple-like Fluid Design
+   ======================================== */
+
+/* ===========================
+   Base Mobile (< 480px)
+   =========================== */
+
+/* Hide cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+
+    .cursor,
+    .cursor-follower {
+        display: none !important;
+    }
+
+    body {
+        cursor: auto;
+    }
+}
+
+/* Small screens base */
+@media (max-width: 479px) {
+
+    /* Navigation */
+    .page-nav {
+        display: none;
+    }
+
+    /* Hero Title */
+    .hero-title {
+        font-size: var(--text-4xl);
+        line-height: 1.2;
+    }
+
+    /* Work Panels */
+    .work-content {
+        flex-direction: column;
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+        text-align: center;
+    }
+
+    .work-image {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .work-info {
+        padding: var(--space-sm);
+    }
+
+    .work-title {
+        font-size: var(--text-2xl);
+    }
+
+    .work-number {
+        font-size: 15vw;
+    }
+
+    /* Horizontal scroll - swipe hint */
+    .scroll-hint {
+        font-size: var(--text-sm);
+    }
+
+    /* Stem Page */
+    .mega-name .name-main {
+        font-size: var(--text-5xl);
+    }
+
+    .statement-text {
+        font-size: var(--text-xl);
+        line-height: 1.6;
+    }
+
+    .about-points {
+        gap: var(--space-sm);
+    }
+
+    .point-item {
+        flex-direction: column;
+        gap: var(--space-xs);
+        text-align: center;
+    }
+
+    /* Career Section */
+    .career-wrapper {
+        flex-direction: column;
+    }
+
+    .career-left-panel {
+        width: 100%;
+        min-height: 50vh;
+    }
+
+    .career-right-area {
+        width: 100%;
+    }
+
+    .career-big-number {
+        font-size: 20vw;
+    }
+
+    /* Roots Page */
+    .canvas-content {
+        width: 300%;
+        height: 300%;
+    }
+
+    .canvas-controls {
+        bottom: auto;
+        top: 10px;
+        right: 10px;
+    }
+
+    .canvas-help-bar {
+        display: none;
+    }
+
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        max-height: 90vh;
+        padding: var(--space-sm);
+        border-radius: var(--border-radius-md);
+    }
+
+    .modal-title {
+        font-size: var(--text-xl);
+    }
+
+    .modal-images img {
+        max-height: 200px;
+    }
+
+    /* CTA Buttons */
+    .page-transition-btn {
+        padding: var(--space-sm) var(--space-md);
+        font-size: var(--text-base);
+    }
+
+    .cta-question,
+    .cta-lead {
+        font-size: var(--text-2xl);
+    }
+}
+
+/* ===========================
+   Large Mobile (480px - 767px)
+   =========================== */
+@media (min-width: 480px) and (max-width: 767px) {
+    .page-nav {
+        display: none;
+    }
+
+    .work-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-md);
+    }
+
+    .work-image {
+        width: 70%;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: var(--text-5xl);
+    }
+
+    .mega-name .name-main {
+        font-size: var(--text-6xl);
+    }
+
+    .career-wrapper {
+        flex-direction: column;
+    }
+
+    .career-left-panel {
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 500px;
+    }
+}
+
+/* ===========================
+   Tablet (768px - 1023px)
+   =========================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .page-nav {
+        right: var(--space-sm);
+    }
+
+    .work-content {
+        flex-direction: row;
+        gap: var(--space-md);
+    }
+
+    .work-image {
+        width: 45%;
+    }
+
+    .work-title {
+        font-size: var(--text-3xl);
+    }
+
+    .career-wrapper {
+        flex-direction: row;
+    }
+
+    .career-left-panel {
+        width: 40%;
+    }
+
+    .career-right-area {
+        width: 60%;
+    }
+
+    .canvas-content {
+        width: 250%;
+        height: 250%;
+    }
+
+    .modal-content {
+        width: 85%;
+        max-width: 700px;
+    }
+}
+
+/* ===========================
+   Small Desktop (1024px - 1439px)
+   =========================== */
+@media (min-width: 1024px) and (max-width: 1439px) {
+    .work-image {
+        width: 40%;
+    }
+
+    .career-left-panel {
+        width: 35%;
+    }
+
+    .career-right-area {
+        width: 65%;
+    }
+
+    .modal-content {
+        max-width: 800px;
+    }
+}
+
+/* ===========================
+   Large Desktop (1440px+)
+   =========================== */
+@media (min-width: 1440px) {
+    .hero-title {
+        font-size: var(--text-hero);
+    }
+
+    .work-panel {
+        min-width: 90vw;
+    }
+
+    .career-big-number {
+        font-size: 25vw;
+    }
+
+    .modal-content {
+        max-width: 900px;
+    }
+}
+
+/* ===========================
+   Ultra Wide (2000px+)
+   =========================== */
+@media (min-width: 2000px) {
+    :root {
+        font-size: 18px;
+    }
+
+    .h-panel {
+        min-width: 80vw;
+    }
+}
+
+/* ===========================
+   Height-based Adjustments
+   =========================== */
+@media (max-height: 600px) {
+    .stem-section {
+        min-height: auto;
+        padding: var(--space-md) 0;
+    }
+
+    .mega-name .name-main {
+        font-size: var(--text-4xl);
+    }
+
+    .intro-keyword span {
+        font-size: var(--text-3xl);
+    }
+}
+
+/* ===========================
+   Landscape Mobile
+   =========================== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero-panel .panel-content {
+        padding: var(--space-sm);
+    }
+
+    .hero-title {
+        font-size: var(--text-3xl);
+    }
+
+    .scroll-hint {
+        display: none;
+    }
+
+    .stem-section {
+        min-height: 100vh;
+    }
+
+    .career-section {
+        min-height: auto;
+    }
+}
+
+/* ===========================
+   Reduced Motion
+   =========================== */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .shooting-star,
+    .twinkle,
+    .milky-way {
+        animation: none !important;
+    }
+}
+
+/* ===========================
+   High Contrast Mode
+   =========================== */
+@media (prefers-contrast: high) {
+    :root {
+        --gray-500: #595959;
+        --gray-600: #404040;
+    }
+
+    /* work-number opacity controlled by branches.css */
+
+    .modal-content {
+        border: 2px solid var(--white);
+    }
+}
+
+/* ===========================
+   Print Styles
+   =========================== */
+@media print {
+
+    .cosmic-bg,
+    .star-canvas,
+    .shooting-stars,
+    .cursor,
+    .cursor-follower,
+    .page-nav,
+    .canvas-controls {
+        display: none !important;
+    }
+
+    .page {
+        position: relative;
+        page-break-after: always;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+}

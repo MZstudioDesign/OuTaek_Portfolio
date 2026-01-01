@@ -1,0 +1,44 @@
+/* ========================================
+   Custom Cursor
+   ======================================== */
+.cursor {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100000;
+    mix-blend-mode: difference;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s var(--ease-expo), width 0.3s, height 0.3s;
+}
+
+.cursor-follower {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    border: 2px solid var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    mix-blend-mode: difference;
+    transform: translate(-50%, -50%);
+    transition: transform 0.4s var(--ease-expo), width 0.3s, height 0.3s, border-radius 0.3s;
+    opacity: 0.6;
+}
+
+.cursor.active {
+    transform: translate(-50%, -50%) scale(0.5);
+}
+
+.cursor-follower.active {
+    width: 80px;
+    height: 80px;
+}
+
+.cursor-follower.button {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+}

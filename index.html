@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MZS 스튜디오 대표 오유택 - 목적에서 출발하는 디자인">
+    <title>오유택 | 나는 내 가지들로 이루어져 있다</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/main.css?v=8">
+</head>
+
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Star Canvas Background -->
+    <canvas id="star-canvas"></canvas>
+
+    <!-- Global Cosmic Background -->
+    <div class="cosmic-bg fixed-cosmic">
+        <div class="milky-way"></div>
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+    </div>
+
+    <!-- Shooting Stars moved to bottom -->
+
+    <!-- Intro Loader - Enhanced -->
+    <div class="intro-loader" id="intro-loader">
+        <!-- Cosmic background -->
+        <div class="intro-cosmic"></div>
+
+        <!-- Animated rings -->
+        <div class="intro-rings">
+            <div class="intro-ring"></div>
+            <div class="intro-ring"></div>
+            <div class="intro-ring"></div>
+            <div class="intro-ring"></div>
+        </div>
+
+        <!-- Floating particles -->
+        <div class="intro-particles" id="intro-particles"></div>
+
+        <!-- Wipe Effect -->
+        <div class="intro-wipe"></div>
+
+        <div class="intro-content">
+            <div class="intro-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+            </div>
+            <div class="intro-text">
+                <div class="intro-keyword">
+                    <span>L</span>
+                    <span>O</span>
+                    <span>A</span>
+                    <span>D</span>
+                    <span>I</span>
+                    <span>N</span>
+                    <span>G</span>
+                </div>
+            </div>
+            <div class="intro-counter">
+                <span class="counter-number">0</span>
+                <span class="counter-percent">%</span>
+            </div>
+        </div>
+
+        <!-- Intro Wipe Transition -->
+        <div class="intro-transition">
+            <div class="intro-wipe"></div>
+        </div>
+    </div>
+
+    <!-- Navigation Indicator -->
+    <nav class="page-nav" id="page-nav">
+        <div class="nav-item active" data-page="branches">
+            <span class="nav-label">가지</span>
+            <span class="nav-line"></span>
+        </div>
+        <div class="nav-item" data-page="stem">
+            <span class="nav-label">줄기</span>
+            <span class="nav-line"></span>
+        </div>
+        <div class="nav-item" data-page="roots">
+            <span class="nav-label">뿌리</span>
+            <span class="nav-line"></span>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Button -->
+    <button class="mobile-nav-btn" id="mobile-nav-btn" aria-label="Navigation Menu">
+        <span class="mobile-nav-icon">☰</span>
+    </button>
+
+    <!-- Mobile Navigation Popup -->
+    <div class="mobile-nav-popup" id="mobile-nav-popup">
+        <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+        <div class="mobile-nav-popup-inner">
+            <div class="mobile-nav-links">
+                <button class="mobile-nav-link" data-page="branches">가지</button>
+                <button class="mobile-nav-link" data-page="stem">줄기</button>
+                <button class="mobile-nav-link" data-page="roots">뿌리</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================ -->
+    <!-- PAGE 1: BRANCHES (가지) - HORIZONTAL SCROLL     -->
+    <!-- ================================================ -->
+    <div class="page page-branches active" id="page-branches">
+        <!-- Fixed Cosmic Background for entire page -->
+        <div class="cosmic-bg fixed-cosmic">
+            <!-- Milky Way -->
+            <div class="milky-way"></div>
+
+            <!-- Nebulae -->
+            <div class="nebula nebula-1"></div>
+            <div class="nebula nebula-2"></div>
+
+            <!-- Stars -->
+            <div class="stars-container">
+                <div class="stars"></div>
+                <div class="stars"></div>
+                <div class="stars"></div>
+            </div>
+
+            <!-- Twinkling Stars -->
+            <div class="twinkle-stars">
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+            </div>
+
+            <!-- Shooting Stars -->
+            <div class="shooting-stars">
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+            </div>
+
+            <div class="horizontal-wrapper">
+                <div class="horizontal-track">
+
+                    <!-- Panel 1: Hero -->
+                    <section class="h-panel hero-panel">
+                        <div class="panel-bg">
+                            <div class="geo-grid">
+                                <div class="geo-line h-line"></div>
+                                <div class="geo-line h-line"></div>
+                                <div class="geo-line v-line"></div>
+                                <div class="geo-line v-line"></div>
+                            </div>
+                            <div class="floating-shapes">
+                                <div class="float-shape sq-1"></div>
+                                <div class="float-shape sq-2"></div>
+                                <div class="float-shape circle-1"></div>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <h1 class="hero-title">
+                                <span class="word">나는</span>
+                                <span class="word">내</span>
+                                <span class="word branch-icon-wrapper">
+                                    <svg class="branch-text-icon" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                        xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                        viewBox="0 0 2000 2000" style="enable-background:new 0 0 2000 2000;"
+                                        xml:space="preserve">
+                                        <g id="branch">
+                                            <path fill="currentColor" d="M1423.026,986.681c0-0.837-0.431-3.091,0.064-5.2c10.057-42.844,20.473-85.634,30.209-128.527
+                                            c2.886-12.716,1.064-26.559,6.305-38.434c19.848-44.966,42.173-89.194,62.528-134.016c5.921-13.039,8.361-27.138,12.396-40.751
+                                            c-25.234,34.068-50.469,68.135-75.703,102.203c-7.841-18.844-15.682-37.688-23.524-56.532
+                                            c-1.058,59.549,3.654,119.379-8.108,181.998c-13.829-28.863-27.659-57.727-41.489-86.59c3.803,20.194,6.678,40.541,11.602,60.549
+                                            c10.079,40.96,31.141,80.908,6.368,123.631c-14.832,25.579-23.3,53.633-38.153,79.201c-16.834,28.978-37.608,56.422-56.669,84.533
+                                            c-1.257-0.489-2.514-0.978-3.771-1.467c0-24.484,0-48.967,0-73.451c-10.692,27.154-22.465,54.806-20.351,81.727
+                                            c1.791,22.809-9.521,38.198-20.701,55.479c-26.33,40.699-53.073,81.219-79.388,121.923c-7.206,11.147-13.493,22.691-19.025,32.06
+                                            c0-38.913,1.479-79.06-0.436-119.099c-1.745-36.473-8.367-72.779-10.612-109.25c-1.924-31.24-4.843-63.041-0.078-93.842
+                                            c14.164-91.573,37.105-181.84,72.389-269.724c2.549-6.349,6.871-13.018,12.688-17.536c16.2-12.581,34.108-23.684,50.402-36.19
+                                            c12.218-9.378,22.982-20.025,34.393-30.107c-36.299-1.142-51.082,25.43-81.625,36.261c1.871-7.835,3.271-13.301,4.474-18.796
+                                            c10.545-48.167,21.513-96.276,31.39-144.534c10.447-51.048,7.133-47.285,13.288-77.015
+                                            c12.091-58.397,28.811-105.144,41.735-136.769c-33.218,25.154-40.771,59.12-53.573,91.101
+                                            c-14.215-21.293-28.431-42.586-42.646-63.879c25.626,68.238,30.63,137.188,14.182,207.205
+                                            c-14.508-43.328-22.107-88.478-56.21-125.761c10.418,44.036,20.278,88.196,35.085,131.214c12.31,35.762,10.23,69.878-2.854,104.505
+                                            c-2.344,6.203-3.982,12.584-6.046,18.86c-9.98,30.339-19.995,60.671-30.737,93.25c-8.392-18.145-16.785-36.291-25.178-54.436
+                                            c1.804,31.206,6.675,62.554,4.546,93.579c-2.112,30.771-11.269,61.217-17.348,91.805c-6.13,30.845-12.275,61.687-18.321,92.069
+                                            c-23.999-50.525-46.141-101.1-72.097-150.328c-15.957-30.265-38.229-58.266-56.732-87.677
+                                            c-11.173-17.761-26.901-35.725-29.344-54.574c-4.288-33.082,0.108-66.914,0.748-100.433c0.205-10.725,0.032-21.455,0.032-32.183
+                                            c-26.109,25.872-22.834,57.251-29.902,90.634c-6.741-10.373-11.761-16.758-15.244-23.664
+                                            c-38.91-77.158-70.304-156.287-92.071-237.892c-0.92-3.448-0.77-8.029-0.614-13.715c0.813-29.59,15.208-53.568,28.782-70.187
+                                            c22.909-13.526,47.48-29.778,72.728-49.298c13.989-10.816,26.892-21.636,38.759-32.253c-15.584,5.588-32.297,12.246-49.737,20.2
+                                            c-15.463,7.052-29.576,14.25-42.388,21.331c7.079-17.469,12.671-40.477,11.979-69.955c-23.961,48.64-47.921,97.28-72.243,146.655
+                                            c-11.94-30.997-23.879-61.994-35.819-92.991c0.766,83.948,34.764,163.12,58.778,245.495c-5.746-1.511-8.081-1.673-9.736-2.626
+                                            c-56.634-32.596-113.298-65.157-169.611-98.121c-2.515-1.472-7.418-5.799-10.465-12.754c-3.407-7.778-2.41-15.057-2.243-16.684
+                                            c1.013-9.914-5.638-36.679-32.846-102.79c3.596,34.646,7.192,69.293,10.778,103.844c-31.436-22.677-43.465-56.21-58.869-87.402
+                                            c-15.452-31.29-26.062-64.183-40.002-99.43c-0.82,11.004-1.408,18.888-2.144,28.764c-12.903-12.933-24.211-24.268-35.519-35.603
+                                            c-0.718,8.046,2.314,13.89,5.512,19.671c22.043,39.851,44.665,79.494,66.005,119.595c15.726,29.551,33.286,57.76,63.92,79.164
+                                            c7.182,5.018,13.36,10.999,20,16.536c-0.922,0.902-1.844,1.804-2.767,2.705c-12.366-0.552-24.732-1.104-37.098-1.657
+                                            c42.863,18.861,86.237,36.991,128.431,56.807c35.002,16.439,69.051,34.33,102.561,52.749c9.414,5.174,18.126,13.544,22.563,22.054
+                                            c23.203,44.503,43.277,90.135,67.661,134.179c21.426,38.701,45.62,76.514,71.23,113.495
+                                            c45.18,65.24,79.369,134.163,101.842,206.488c28.978,93.262,41.165,188.424,35.083,284.781c-1.658,26.269-5.3,52.454-8.032,78.678
+                                            c-6.01-4.963-8.626-9.875-9.431-14.98c-18.29-115.982-91.229-209.257-184.193-293.513
+                                            c-47.437-42.993-98.752-83.107-147.434-125.204c-6.45-5.578-9.639-14.976-10.988-22.984c-4.92-29.209-8.419-58.579-12.454-87.888
+                                            c-4.047,27.03-8.094,54.06-12.142,81.091c-35.731-25.043-71.461-50.086-107.192-75.13c-9.555-27.562-25.378-61.143-52.429-95.788
+                                            c-9.411-12.053-19.119-22.875-28.701-32.537c15.622,34.576,31.244,69.152,46.866,103.727
+                                            c-64.371-48.298-97.361-71.753-99.024-70.363c-1.799,1.523,34.014,32.839,107.442,93.951c-32.54-7.567-65.395-15.208-98.249-22.848
+                                            c67.051,37.859,94.971,48.742,107.127,50.435c1.522,0.212,9.07,0.885,18.689,3.633c8.893,2.541,19.566,4.09,25.838,9.111
+                                            c67.67,54.178,134.691,108.9,201.701,163.628c9.463,7.728,17.917,16.284,27.884,25.416c-4.914,1.592-6.792,2.78-8.581,2.696
+                                            c-56.108-2.645-112.263-4.875-168.248-8.748c-6.316-0.437-2.029-1.414-23.679-13.823c-27.803-15.936-50.779-28.039-65.52-35.618
+                                            c13.456,13.956,26.911,27.913,40.367,41.87c-0.811,1.686-1.622,3.372-2.433,5.058c-48.559-12.329-97.453-23.878-145.381-37.676
+                                            c-2.52-0.726-9.398-10.254-21.28-21.594c-14.142-13.498-26.662-23.861-35.126-30.576c4.3,10.419,8.6,20.838,12.901,31.257
+                                            c-32.201-17.081-64.401-34.162-96.602-51.242c17.128,17.073,38.567,35.983,64.745,54.481c22.105,15.62,43.264,27.891,62.218,37.527
+                                            c-32.085,0.955-64.17,1.91-96.254,2.864c85.904,18.35,117.518,18.459,130.077,14.785c2.819-0.825,14.792-4.672,30.157-3.396
+                                            c9.726,0.808,16.497,3.789,18.744,4.333c64.167,15.553,130.052,19.407,196.086,21.624c-17.438,18.855-34.876,37.711-52.314,56.566
+                                            c11.473-6.512,23.362-13.765,35.476-21.837c17.059-11.367,32.183-22.784,45.565-33.836c6.539,0.193,13.076,0.385,19.612,0.585
+                                            c51.326,1.568,91.425,10.614,126.977,48.497c70.918,75.57,113.965,158.54,132.009,251.294c4.011,20.619,5.554,42.118,3.421,62.881
+                                            c-8.077,78.638-48.025,150.694-73.558,225.692c-13.61,39.977-27.25,78.374-26.858,120.863c0.288,31.174,13.63,48.552,51.031,61.085
+                                            c-1.781-11.1-3.441-19.885-4.557-28.715c-2.653-20.991-7.869-42.078-7.044-62.993c2.975-75.417,36.273-145.121,63.842-215.855
+                                            c17.945-46.043,39.379-91.505,51.896-138.539c11.635-43.719,33.838-83.085,59.013-121.416
+                                            c37.937-57.761,78.157-114.619,120.319-170.385c34.269-45.326,50.774-101.564,115.113-129.353
+                                            c4.39-1.896,19.803-9.841,38.494-22.944c22.439-15.731,37.999-31.324,47.791-42.271
+                                            C1506.34,943.893,1464.562,965.349,1423.026,986.681z" />
+                                        </g>
+                                    </svg>
+                                </span>
+                                <span class="word">들로</span>
+                                <br>
+                                <span class="word">이루어져있다</span>
+                            </h1>
+                        </div>
+                        <div class="scroll-hint">
+                            <span>SCROLL</span>
+                            <div class="scroll-arrow">→</div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 2: Work 1 -->
+                    <section class="h-panel work-panel" data-parallax>
+                        <div class="work-bg">
+                            <div class="work-number">01</div>
+                        </div>
+                        <div class="work-content">
+                            <div class="work-image">
+                                <div class="image-frame">
+                                    <span>DESIGN</span>
+                                </div>
+                            </div>
+                            <div class="work-info">
+                                <h2 class="work-title">편집 디자인</h2>
+                                <p class="work-desc">레이아웃과 무게감에 대한 끝없는 고민</p>
+                                <span class="work-stat">600+ PROJECTS</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 3: Work 2 -->
+                    <section class="h-panel work-panel" data-parallax>
+                        <div class="work-bg">
+                            <div class="work-number">02</div>
+                        </div>
+                        <div class="work-content">
+                            <div class="work-image">
+                                <div class="image-frame">
+                                    <span>BRAND</span>
+                                </div>
+                            </div>
+                            <div class="work-info">
+                                <h2 class="work-title">브랜딩 & 마케팅</h2>
+                                <p class="work-desc">MZS · 한아름 · 철없는 자두</p>
+                                <span class="work-stat">IDENTITY DESIGN</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 4: Work 3 -->
+                    <section class="h-panel work-panel" data-parallax>
+                        <div class="work-bg">
+                            <div class="work-number">03</div>
+                        </div>
+                        <div class="work-content">
+                            <div class="work-image">
+                                <div class="image-frame">
+                                    <span>MOTION</span>
+                                </div>
+                            </div>
+                            <div class="work-info">
+                                <h2 class="work-title">영상 & 모션</h2>
+                                <p class="work-desc">유튜브 아카데미 1년 강사</p>
+                                <span class="work-stat">VIDEO PRODUCTION</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 5: Work 4 -->
+                    <section class="h-panel work-panel" data-parallax>
+                        <div class="work-bg">
+                            <div class="work-number">04</div>
+                        </div>
+                        <div class="work-content">
+                            <div class="work-image">
+                                <div class="image-frame">
+                                    <span>CODE</span>
+                                </div>
+                            </div>
+                            <div class="work-info">
+                                <h2 class="work-title">AI & 개발</h2>
+                                <p class="work-desc">웹사이트 · 프로그램 · 시스템</p>
+                                <span class="work-stat">AI-POWERED</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 6: Work 5 -->
+                    <section class="h-panel work-panel" data-parallax>
+                        <div class="work-bg">
+                            <div class="work-number">05</div>
+                        </div>
+                        <div class="work-content">
+                            <div class="work-image">
+                                <div class="image-frame">
+                                    <span>TEACH</span>
+                                </div>
+                            </div>
+                            <div class="work-info">
+                                <h2 class="work-title">교육 & 강의</h2>
+                                <p class="work-desc">고등학교 · 아카데미</p>
+                                <span class="work-stat">EDUCATION</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 7: Work 6 -->
+                    <section class="h-panel work-panel" data-parallax>
+                        <div class="work-bg">
+                            <div class="work-number">06</div>
+                        </div>
+                        <div class="work-content">
+                            <div class="work-image">
+                                <div class="image-frame">
+                                    <span>PRODUCT</span>
+                                </div>
+                            </div>
+                            <div class="work-info">
+                                <h2 class="work-title">제품 디자인</h2>
+                                <p class="work-desc">기능과 미학의 교차점</p>
+                                <span class="work-stat">PRODUCT DESIGN</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Panel 8: Who Button -->
+                    <section class="h-panel cta-panel">
+                        <div class="cta-content">
+                            <h2 class="cta-question">안녕하세요!<br>이 모든 가지들의<br>주인인...</h2>
+                            <button class="page-transition-btn" data-target="stem">
+                                <span class="btn-text">누구?</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+            <div class="h-progress">
+                <div class="h-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================ -->
+    <!-- PAGE 2: STEM (줄기) - VERTICAL SCROLL           -->
+    <!-- ================================================ -->
+    <div class="page page-stem" id="page-stem">
+        <!-- Full Cosmic Background (same as hero) -->
+        <div class="cosmic-bg">
+            <!-- Milky Way -->
+            <div class="milky-way"></div>
+
+            <!-- Nebulae -->
+            <div class="nebula nebula-1"></div>
+            <div class="nebula nebula-2"></div>
+
+            <!-- Stars -->
+            <div class="stars-container">
+                <div class="stars"></div>
+                <div class="stars"></div>
+                <div class="stars"></div>
+            </div>
+
+            <!-- Twinkling Stars -->
+            <div class="twinkle-stars">
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+            </div>
+
+            <!-- Shooting Stars -->
+            <div class="shooting-stars">
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: 저는 오유택입니다 -->
+        <section class="stem-section intro-section" id="intro-section">
+            <div class="section-content">
+                <div class="about-intro">
+                    <p class="intro-prefix">저는</p>
+                    <h1 class="mega-name">
+                        <span class="name-main">오유택</span>
+                        <span class="name-suffix">입니다.</span>
+                    </h1>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: 그저 단순히~ + 01/02/03 -->
+        <section class="stem-section statement-section" id="statement-section">
+            <div class="section-content">
+                <div class="about-statement">
+                    <p class="statement-text">
+                        <span class="statement-line">그저 단순히</span>
+                        <span class="statement-line keyword-line">
+                            <span class="rotating-text-wrapper short-transition">
+                                <span class="rotate-viewport">
+                                    <span class="rotate-item active" data-word="디자인">디자인</span>
+                                    <span class="rotate-item" data-word="AI">AI</span>
+                                    <span class="rotate-item" data-word="시스템">시스템</span>
+                                    <span class="rotate-item" data-word="모션">모션</span>
+                                    <span class="rotate-item" data-word="웹사이트">웹사이트</span>
+                                    <span class="rotate-item" data-word="개발">개발</span>
+                                    <span class="rotate-item" data-word="브랜딩">브랜딩</span>
+                                    <span class="rotate-item" data-word="촬영">촬영</span>
+                                    <span class="rotate-item" data-word="제품디자인">제품디자인</span>
+                                    <span class="rotate-item" data-word="강의">강의</span>
+                                    <span class="rotate-item" data-word="마케팅">마케팅</span>
+                                    <span class="rotate-item" data-word="영상">영상</span>
+                                </span>
+                            </span><span class="particle-text">을</span><span class="suffix-text"> 잘하는</span>
+                        </span>
+                        <span class="statement-line">사람이 아닙니다.</span>
+                    </p>
+                </div>
+                <div class="about-points">
+                    <div class="point-item">
+                        <span class="point-num">01</span>
+                        <p>문제의 <em>진짜 원인</em>을 찾고</p>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-num">02</span>
+                        <p>최선의 <em>해결책</em>을 고심하고</p>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-num">03</span>
+                        <p>가장 좋은 <em>솔루션</em>을 설계합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: 경력 (Sticky Scroll) -->
+        <section class="career-section" id="career-section">
+            <div class="career-wrapper">
+                <!-- Left Panel (White, High Z-Index) -->
+                <div class="career-left-panel">
+                    <div class="career-panel-inner">
+                        <nav class="career-nav-list">
+                            <div class="nav-item active" data-index="0">01 MZS 스튜디오</div>
+                            <div class="nav-item" data-index="1">02 유튜브 아카데미</div>
+                            <div class="nav-item" data-index="2">03 한아름</div>
+                            <div class="nav-item" data-index="3">04 크몽 프로젝트</div>
+                        </nav>
+                        <div class="career-big-number">01</div>
+                        <div class="career-info-box">
+                            <h3 class="career-info-title">MZS 스튜디오 대표</h3>
+                            <p class="career-info-period">2023.01 – 현재</p>
+                            <p class="career-info-role">디자인 스튜디오 창업 · 2년 운영</p>
+                            <p class="career-info-desc">세부 설명이 여기에 표시됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Area (Image Track) -->
+                <div class="career-right-area">
+                    <div class="career-scroll-track">
+                        <div class="career-card" data-title="MZS 스튜디오 대표" data-role="디자인 스튜디오 창업 · 2년 운영">
+                            <div class="card-inner"><span>MZS</span><span>STUDIO</span></div>
+                        </div>
+                        <div class="career-card" data-title="유튜브 아카데미 강사" data-role="영상 제작 · 편집 교육 강의">
+                            <div class="card-inner"><span>YOUTUBE</span><span>ACADEMY</span></div>
+                        </div>
+                        <div class="career-card" data-title="한아름 아마존 디자이너" data-role="이커머스 상세페이지 디자인">
+                            <div class="card-inner"><span>HANARUM</span><span>AMAZON</span></div>
+                        </div>
+                        <div class="career-card" data-title="크몽 프리랜서" data-role="600+ 프로젝트 완료">
+                            <div class="card-inner"><span>KMONG</span><span>600+</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: CTA Button -->
+        <section class="stem-section cta-section" id="cta-section">
+            <div class="cta-content">
+                <h2 class="cta-lead">이 줄기를 지탱하는<br>뿌리는?</h2>
+                <button class="page-transition-btn" data-target="roots">
+                    <span class="btn-text">프로젝트</span>
+                    <span class="btn-arrow">↓</span>
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ================================================ -->
+    <!-- PAGE 3: ROOTS (뿌리) - FIGMA-STYLE FREE CANVAS  -->
+    <!-- ================================================ -->
+    <div class="page page-roots" id="page-roots">
+        <!-- Full Cosmic Background (same as hero) -->
+        <div class="cosmic-bg">
+            <!-- Milky Way -->
+            <div class="milky-way"></div>
+
+            <!-- Nebulae -->
+            <div class="nebula nebula-1"></div>
+            <div class="nebula nebula-2"></div>
+
+            <!-- Stars -->
+            <div class="stars-container">
+                <div class="stars"></div>
+                <div class="stars"></div>
+                <div class="stars"></div>
+            </div>
+
+            <!-- Twinkling Stars -->
+            <div class="twinkle-stars">
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+                <div class="twinkle"></div>
+            </div>
+
+            <!-- Shooting Stars -->
+            <div class="shooting-stars">
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+                <div class="shooting-star"></div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="canvas-controls">
+            <button class="zoom-btn zoom-out">−</button>
+            <span class="zoom-level">100%</span>
+            <button class="zoom-btn zoom-in">+</button>
+            <button class="zoom-btn zoom-fit">FIT</button>
+        </div>
+
+        <!-- Canvas Help Bar (Direct Display) -->
+        <div class="canvas-help-bar">
+            <div class="help-item-inline">
+                <span class="help-icon">🖱️</span>
+                <span>휠: 확대/축소</span>
+            </div>
+            <div class="help-item-inline">
+                <span class="help-icon">✋</span>
+                <span>드래그: 이동</span>
+            </div>
+            <div class="help-item-inline">
+                <span class="help-icon">👆</span>
+                <span>더블클릭: 맞추기</span>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvas-wrapper">
+            <div class="canvas-content" id="canvas-content">
+
+                <!-- Dynamic Content Container -->
+                <div id="roots-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Detail Modal -->
+    <div class="page-modal" id="page-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close">×</button>
+            <div class="modal-header">
+                <h2 class="modal-title"></h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-images"></div>
+                <div class="modal-text"></div>
+                <div class="modal-empty-state" style="display: none;">
+                    <p>내용 준비 중입니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Transition Overlay -->
+    <div class="page-transition" id="page-transition">
+        <div class="transition-blocks">
+            <div class="t-block"></div>
+            <div class="t-block"></div>
+            <div class="t-block"></div>
+            <div class="t-block"></div>
+            <div class="t-block"></div>
+        </div>
+    </div>
+
+    <!-- Shooting Stars (Final Layer) -->
+    <div class="shooting-stars">
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+    </div>
+
+
+    <script type="module" src="js/core/app.js"></script>
+</body>
+
+</html>

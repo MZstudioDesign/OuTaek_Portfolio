@@ -1,0 +1,88 @@
+/* ========================================
+   Page Transition Styles
+   세로 블록 트랜지션 효과
+   ======================================== */
+.page-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+
+/* ===== VERTICAL BLOCKS (stem → roots) ===== */
+.transition-blocks {
+    display: flex;
+    height: 100%;
+}
+
+.t-block {
+    flex: 1;
+    background: var(--white);
+    transform: scaleY(0);
+    transform-origin: bottom;
+}
+
+.page-transition.active .t-block {
+    animation: blockReveal 1.4s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+.t-block:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.t-block:nth-child(2) {
+    animation-delay: 0.08s;
+}
+
+.t-block:nth-child(3) {
+    animation-delay: 0.16s;
+}
+
+.t-block:nth-child(4) {
+    animation-delay: 0.24s;
+}
+
+.t-block:nth-child(5) {
+    animation-delay: 0.32s;
+}
+
+@keyframes blockReveal {
+    0% {
+        transform: scaleY(0);
+        transform-origin: bottom;
+    }
+
+    50% {
+        transform: scaleY(1);
+        transform-origin: bottom;
+    }
+
+    51% {
+        transform: scaleY(1);
+        transform-origin: top;
+    }
+
+    100% {
+        transform: scaleY(0);
+        transform-origin: top;
+    }
+}
+
+/* Hide t-blocks when not active */
+.page-transition:not(.active) .t-block {
+    visibility: hidden;
+    transform: scaleY(0);
+}
+
+/* Page Transition Blur Effect */
+.page {
+    transition: filter 0.5s var(--ease-expo);
+}
+
+.page:not(.active) {
+    filter: blur(0px);
+}
