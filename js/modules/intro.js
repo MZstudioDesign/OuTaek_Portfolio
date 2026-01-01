@@ -60,6 +60,9 @@ export function initIntro() {
                 if (pageNav) pageNav.classList.add('visible');
                 // Show shooting stars after intro completes
                 document.body.classList.add('intro-complete');
+
+                // 🚀 Dispatch event for deferred page initialization
+                window.dispatchEvent(new CustomEvent('introComplete'));
             }, 1800);
         }
     }

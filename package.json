@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npx serve . -l 24433",
     "build-data": "node scripts/build-data.js",
+    "optimize-images": "node scripts/optimize-images.js",
     "fetch-notion": "node fetch-notion.js",
     "generate-json": "node generate_portfolio_json.js"
   },
@@ -19,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@notionhq/client": "^2.2.15",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "sharp": "^0.33.5"
   }
 }

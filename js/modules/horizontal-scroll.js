@@ -85,11 +85,17 @@ export async function initHorizontalScroll() {
 
         panels.forEach((panel, i) => {
             const panelOffset = i * window.innerWidth - currentScroll;
-            const rotateY = (panelOffset / window.innerWidth) * 35;
-            const scale = 1 - Math.abs(panelOffset / window.innerWidth) * 0.15;
-            const translateZ = -Math.abs(panelOffset / window.innerWidth) * 300;
-            const translateX = (panelOffset / window.innerWidth) * 50;
-            const opacity = Math.max(0.2, 1 - Math.abs(panelOffset / window.innerWidth) * 0.7);
+            const normalizedOffset = panelOffset / window.innerWidth;
+            const absOffset = Math.abs(normalizedOffset);
+
+            // Cap rotation at 60 degrees to prevent backface visibility
+            const rotateY = Math.max(-60, Math.min(60, normalizedOffset * 35));
+            const scale = 1 - absOffset * 0.15;
+            const translateZ = -absOffset * 300;
+            const translateX = normalizedOffset * 50;
+
+            // Fade to 0 when more than 2 panels away (no more 0.2 floor)
+            const opacity = absOffset > 2 ? 0 : Math.max(0, 1 - absOffset * 0.5);
 
             panel.style.transform = `
                 perspective(1000px)

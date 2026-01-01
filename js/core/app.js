@@ -39,7 +39,7 @@ export function bootstrapApp() {
     console.log('[App] Bootstrapping...');
 
     // ===========================
-    // 1. Global Modules
+    // 1. Global Modules (Lightweight)
     // These run once and apply to the entire app
     // ===========================
     initIntro();
@@ -49,12 +49,17 @@ export function bootstrapApp() {
     initNavigation();
 
     // ===========================
-    // 2. Page-Specific Modules
-    // Each page initializes its own modules
+    // 2. Page-Specific Modules (DEFERRED)
+    // Heavy initialization runs AFTER intro animation completes
+    // This prevents animation lag/stuttering
     // ===========================
-    initializeAllPages();
+    window.addEventListener('introComplete', () => {
+        console.log('[App] Intro complete, initializing pages...');
+        initializeAllPages();
+        console.log('[App] All pages initialized');
+    }, { once: true });
 
-    console.log('[App] Bootstrap complete');
+    console.log('[App] Bootstrap complete (pages will init after intro)');
 }
 
 /**

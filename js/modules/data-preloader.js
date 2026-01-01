@@ -15,11 +15,24 @@ function normalizeItems(items) {
     if (!items) return [];
     return items.map(item => {
         const newItem = { ...item };
+
+        // Ensure images is an array of objects and force .webp extension
         if (Array.isArray(newItem.images) && newItem.images.length > 0) {
-            if (typeof newItem.images[0] === 'string') {
-                newItem.images = newItem.images.map(url => ({ url }));
-            }
+            newItem.images = newItem.images.map(img => {
+                const url = typeof img === 'string' ? img : img.url;
+                // Force .webp extension for local portfolio images
+                if (url.includes('assets/images/portfolio/')) {
+                    return { url: url.replace(/\.(png|jpg|jpeg|gif)$/i, '.webp') };
+                }
+                return { url };
+            });
         }
+
+        // Also fix the primary imageUrl if it exists
+        if (newItem.imageUrl && newItem.imageUrl.includes('assets/images/portfolio/')) {
+            newItem.imageUrl = newItem.imageUrl.replace(/\.(png|jpg|jpeg|gif)$/i, '.webp');
+        }
+
         if (Array.isArray(newItem.content) && !newItem.rawTexts) {
             newItem.rawTexts = newItem.content;
         }
