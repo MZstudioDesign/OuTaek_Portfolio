@@ -215,57 +215,95 @@ export function renderStandardLayout(modal, item) {
 
 // ===========================
 // Floating Toast Renderer (Redesigned)
+// PC: Left/Right symmetric layout when > 5 toasts
 // ===========================
 export function renderFloatingToasts(modal, collectedLinks) {
     if (collectedLinks.length === 0) return;
 
-    const toastContainer = document.createElement('div');
-    toastContainer.className = 'link-toast-container';
+    const isMobile = window.innerWidth <= 768;
+    const useSymmetric = !isMobile && collectedLinks.length > 5;
 
-    collectedLinks.forEach(link => {
-        if (link.type === 'youtube') {
-            // YouTube Toast - Large vertical card with thumbnail
-            const toast = document.createElement('div');
-            toast.className = 'link-toast video-toast-card';
-            const thumbUrl = `https://img.youtube.com/vi/${link.ytId}/maxresdefault.jpg`;
+    // Create containers
+    let leftContainer = null;
+    let rightContainer = null;
 
-            toast.innerHTML = `
-                <div class="video-toast-preview" style="background-image: url('${thumbUrl}')">
-                    <div class="video-play-overlay">
-                        <div class="video-play-btn">▶</div>
-                    </div>
-                </div>
-                <div class="video-toast-label">YouTube 영상 보기</div>
-            `;
+    if (useSymmetric) {
+        // Create both left and right containers
+        leftContainer = document.createElement('div');
+        leftContainer.className = 'link-toast-container link-toast-left';
 
-            // Click opens nested video modal
-            toast.addEventListener('click', () => {
-                openVideoModal(link.ytId);
-            });
+        rightContainer = document.createElement('div');
+        rightContainer.className = 'link-toast-container link-toast-right';
+    } else {
+        // Single right container (default)
+        rightContainer = document.createElement('div');
+        rightContainer.className = 'link-toast-container';
+    }
 
-            toastContainer.appendChild(toast);
+    collectedLinks.forEach((link, index) => {
+        const toast = createToastElement(link);
+
+        if (useSymmetric) {
+            // Alternate: even -> right, odd -> left
+            if (index % 2 === 0) {
+                rightContainer.appendChild(toast);
+            } else {
+                leftContainer.appendChild(toast);
+            }
         } else {
-            // Regular link toast -> opens in new tab
-            const toast = document.createElement('a');
-            toast.href = link.url;
-            toast.target = '_blank';
-            toast.className = 'link-toast';
-
-            const meta = link.meta || {};
-            let domain = '';
-            try { domain = new URL(link.url).hostname; } catch (e) { domain = 'Link'; }
-
-            toast.innerHTML = `
-                <div class="link-toast-thumb" style="background-image: url('${meta.image || ''}')"></div>
-                <div class="link-toast-content">
-                    <div class="link-toast-title">${meta.title || link.url}</div>
-                    <div class="link-toast-domain">${domain}</div>
-                </div>
-            `;
-            toastContainer.appendChild(toast);
+            rightContainer.appendChild(toast);
         }
     });
-    modal.appendChild(toastContainer);
+
+    if (useSymmetric && leftContainer) {
+        modal.appendChild(leftContainer);
+    }
+    modal.appendChild(rightContainer);
+}
+
+// Helper: Create a toast element
+function createToastElement(link) {
+    if (link.type === 'youtube') {
+        // YouTube Toast - Large vertical card with thumbnail
+        const toast = document.createElement('div');
+        toast.className = 'link-toast video-toast-card';
+        const thumbUrl = `https://img.youtube.com/vi/${link.ytId}/maxresdefault.jpg`;
+
+        toast.innerHTML = `
+            <div class="video-toast-preview" style="background-image: url('${thumbUrl}')">
+                <div class="video-play-overlay">
+                    <div class="video-play-btn">▶</div>
+                </div>
+            </div>
+            <div class="video-toast-label">YouTube 영상 보기</div>
+        `;
+
+        // Click opens nested video modal
+        toast.addEventListener('click', () => {
+            openVideoModal(link.ytId);
+        });
+
+        return toast;
+    } else {
+        // Regular link toast -> opens in new tab
+        const toast = document.createElement('a');
+        toast.href = link.url;
+        toast.target = '_blank';
+        toast.className = 'link-toast';
+
+        const meta = link.meta || {};
+        let domain = '';
+        try { domain = new URL(link.url).hostname; } catch (e) { domain = 'Link'; }
+
+        toast.innerHTML = `
+            <div class="link-toast-thumb" style="background-image: url('${meta.image || ''}')"></div>
+            <div class="link-toast-content">
+                <div class="link-toast-title">${meta.title || link.url}</div>
+                <div class="link-toast-domain">${domain}</div>
+            </div>
+        `;
+        return toast;
+    }
 }
 
 // ===========================

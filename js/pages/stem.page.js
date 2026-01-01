@@ -124,9 +124,9 @@ function updateCareerContent(items) {
 
         // Extract from content array
         for (const block of content) {
-            // Period pattern: 2024.07 – 2024.12
-            const periodMatch = block.match(/(\d{4}\.\d{2}\s*[–-]\s*(?:\d{4}\.\d{2}|현재))/);
-            if (periodMatch) period = periodMatch[1];
+            // Period pattern: 2024.07 – 2024.12 or Present (handles leading newline)
+            const periodMatch = block.match(/\s*(\d{4}\.\d{2}\s*[–-]\s*(?:\d{4}\.\d{2}|현재|Present))/i);
+            if (periodMatch) period = periodMatch[1].trim();
 
             // Role from "좌하단 제목 : ..." pattern
             const roleMatch = block.match(/좌하단 제목\s*:\s*(.+?)(?:\n|$)/);

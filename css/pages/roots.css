@@ -563,6 +563,17 @@
     /* Allow clicks through empty space */
 }
 
+/* PC: Symmetric toast layout when many toasts */
+.link-toast-container.link-toast-right {
+    right: 2rem;
+    left: auto;
+}
+
+.link-toast-container.link-toast-left {
+    right: auto;
+    left: 2rem;
+}
+
 .link-toast {
     display: flex;
     align-items: center;

@@ -3,17 +3,8 @@
  * Build Data Script
  * ========================================
  * 
- * Notion 페이지에서 모든 데이터를 가져와 portfolio.json을 생성합니다.
- * 이미지는 로컬에 다운로드하여 assets/images/portfolio/에 저장됩니다.
- * 
- * 사용법:
- *   npm run build-data
- * 
- * 환경 변수:
- *   NOTION_TOKEN - Notion API 토큰 (.env 파일에 설정)
- * 
- * 환경 변수:
- *   NOTION_TOKEN - Notion API 토큰 (.env 파일에 설정)
+ * Notion 페이지에서 데이터를 수집하여 portfolio.json 생성
+ * 이미지는 assets/images/portfolio/에 로컬 저장
  * 
  * @module scripts/build-data
  */
@@ -29,243 +20,212 @@ const http = require('http');
 // Configuration
 // ===========================
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
-
-// 메인 페이지 ID (유저가 제공한 URL에서 추출)
 const MAIN_PAGE_ID = '2d41f3d0ca3580a4883cdcbeceb7ad98';
+const CONCURRENT_DOWNLOADS = 6;
 
-// Output directories
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const IMAGES_DIR = path.join(__dirname, '..', 'assets', 'images', 'portfolio');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
 
-// ===========================
-// Validate Environment
-// ===========================
 if (!NOTION_TOKEN) {
-    console.error('❌ Error: NOTION_TOKEN is not set');
-    console.error('   Please create a .env file with:');
-    console.error('   NOTION_TOKEN=your_notion_api_key');
+    console.error('❌ NOTION_TOKEN not set');
     process.exit(1);
 }
 
-// Initialize Notion Client
 const notion = new Client({ auth: NOTION_TOKEN });
 
-// ===========================
-// Helper Functions
-// ===========================
+// Stats
+let stats = { found: 0, downloaded: 0, skipped: 0, failed: 0 };
 
-/**
- * Get all blocks from a page or block (recursive children)
- */
-async function getBlocks(blockId) {
+// ===========================
+// Parallel Download Queue
+// ===========================
+class DownloadQueue {
+    constructor(limit) {
+        this.limit = limit;
+        this.running = 0;
+        this.queue = [];
+    }
+    async add(fn) {
+        if (this.running >= this.limit) {
+            await new Promise(r => this.queue.push(r));
+        }
+        this.running++;
+        try { return await fn(); }
+        finally {
+            this.running--;
+            if (this.queue.length) this.queue.shift()();
+        }
+    }
+}
+const downloadQueue = new DownloadQueue(CONCURRENT_DOWNLOADS);
+
+// ===========================
+// Block Fetching (DFS, Deduplicated)
+// ===========================
+async function getBlocks(blockId, visited = new Set()) {
     const blocks = [];
-    let cursor = undefined;
+    let cursor;
 
     do {
-        const response = await notion.blocks.children.list({
+        const res = await notion.blocks.children.list({
             block_id: blockId,
             start_cursor: cursor,
             page_size: 100,
         });
-        blocks.push(...response.results);
-        cursor = response.has_more ? response.next_cursor : undefined;
+
+        for (const block of res.results) {
+            if (visited.has(block.id)) continue;
+            visited.add(block.id);
+            blocks.push(block);
+
+            // Recurse into children (column, toggle, list, etc.)
+            if (block.has_children && block.type !== 'child_database') {
+                blocks.push(...await getBlocks(block.id, visited));
+            }
+        }
+        cursor = res.has_more ? res.next_cursor : null;
     } while (cursor);
 
     return blocks;
 }
 
-/**
- * Extract text from rich_text array
- */
-function extractText(richTextArray) {
-    if (!richTextArray || !Array.isArray(richTextArray)) return '';
-    return richTextArray.map(t => t.plain_text).join('');
+// ===========================
+// Text Extraction
+// ===========================
+function extractText(richText) {
+    if (!richText?.length) return '';
+    return richText.map(t => t.plain_text).join('');
 }
 
-/**
- * Extract links from rich_text array
- */
-function extractLinks(richTextArray) {
-    const links = [];
-    if (!richTextArray || !Array.isArray(richTextArray)) return links;
-    for (const t of richTextArray) {
-        if (t.href) {
-            links.push(t.href);
-        } else if (t.text && t.text.link && t.text.link.url) {
-            links.push(t.text.link.url);
-        }
-    }
-    return links;
+function extractLinks(richText) {
+    if (!richText?.length) return [];
+    return richText.filter(t => t.href || t.text?.link?.url)
+        .map(t => t.href || t.text.link.url);
 }
 
-/**
- * Download an image from URL and save locally
- * @param {string} url - Image URL
- * @param {string} filename - Local filename to save as
- * @returns {Promise<string>} - Local path if successful, original URL if failed
- */
+// ===========================
+// Image Download
+// ===========================
 async function downloadImage(url, filename) {
-    return new Promise((resolve) => {
-        try {
-            const localPath = `assets/images/portfolio/${filename}`;
-            const fullPath = path.join(IMAGES_DIR, filename);
+    return new Promise(resolve => {
+        const fullPath = path.join(IMAGES_DIR, filename);
 
-            // Skip if already downloaded
-            if (fs.existsSync(fullPath)) {
-                resolve(localPath);
+        // Skip if already exists and valid
+        if (fs.existsSync(fullPath) && fs.statSync(fullPath).size > 1000) {
+            console.log(`   [SKIPPED_FILE_EXISTS] ${filename}`);
+            stats.skipped++;
+            resolve(`assets/images/portfolio/${filename}`);
+            return;
+        }
+
+        const protocol = url.startsWith('https') ? https : http;
+        const req = protocol.get(url, res => {
+            if (res.statusCode === 301 || res.statusCode === 302) {
+                downloadImage(res.headers.location, filename).then(resolve);
+                return;
+            }
+            if (res.statusCode !== 200) {
+                console.log(`   [FAILED] ${filename} (HTTP ${res.statusCode})`);
+                stats.failed++;
+                resolve(null);
                 return;
             }
 
-            const protocol = url.startsWith('https') ? https : http;
-
-            const request = protocol.get(url, (response) => {
-                // Handle redirects
-                if (response.statusCode === 301 || response.statusCode === 302) {
-                    downloadImage(response.headers.location, filename).then(resolve);
-                    return;
+            const file = fs.createWriteStream(fullPath);
+            res.pipe(file);
+            file.on('finish', () => {
+                file.close();
+                if (fs.statSync(fullPath).size < 100) {
+                    fs.unlinkSync(fullPath);
+                    stats.failed++;
+                    resolve(null);
+                } else {
+                    console.log(`   [DOWNLOAD_SUCCESS] ${filename}`);
+                    stats.downloaded++;
+                    resolve(`assets/images/portfolio/${filename}`);
                 }
-
-                if (response.statusCode !== 200) {
-                    resolve(url); // Return original URL on failure
-                    return;
-                }
-
-                const file = fs.createWriteStream(fullPath);
-                response.pipe(file);
-
-                file.on('finish', () => {
-                    file.close();
-                    resolve(localPath);
-                });
-
-                file.on('error', () => {
-                    fs.unlink(fullPath, () => { });
-                    resolve(url);
-                });
             });
-
-            request.on('error', () => {
-                resolve(url); // Return original URL on failure
+            file.on('error', () => {
+                fs.unlink(fullPath, () => { });
+                stats.failed++;
+                resolve(null);
             });
-
-            request.setTimeout(10000, () => {
-                request.destroy();
-                resolve(url);
-            });
-        } catch (e) {
-            resolve(url); // Return original URL on any error
-        }
+        });
+        req.on('error', () => { stats.failed++; resolve(null); });
+        req.setTimeout(60000, () => { req.destroy(); stats.failed++; resolve(null); });
     });
 }
 
-/**
- * Extract images from blocks and download them locally
- * @param {Array} blocks - Notion blocks
- * @param {string} prefix - Filename prefix (e.g., 'branches_01')
- * @returns {Promise<string[]>} - Array of local image paths
- */
-async function extractAndDownloadImages(blocks, prefix) {
+// Retry wrapper
+async function downloadWithRetry(url, filename, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+        const result = await downloadImage(url, filename);
+        if (result) return result;
+        if (i < retries - 1) await new Promise(r => setTimeout(r, 2000));
+    }
+    return null;
+}
+
+// ===========================
+// Extract & Download Images
+// ===========================
+async function extractAndDownloadImages(blocks, prefix, pageTitle) {
     const images = [];
-    let index = 0;
+    const tasks = [];
 
     for (const block of blocks) {
-        if (block.type === 'image') {
-            const url = block.image.file?.url || block.image.external?.url;
-            if (url) {
-                // Generate filename from URL or use index
-                let ext = 'jpg';
-                const urlPath = new URL(url).pathname;
-                const match = urlPath.match(/\.([a-zA-Z]{3,4})(?:\?|$)/);
-                if (match) ext = match[1].toLowerCase();
+        if (block.type !== 'image') continue;
 
-                const filename = `${prefix}_${index}.${ext}`;
-                const localPath = await downloadImage(url, filename);
-                images.push(localPath);
-                index++;
-            }
-        }
+        const url = block.image?.file?.url || block.image?.external?.url;
+        if (!url) continue;
+
+        stats.found++;
+        const blockId = block.id.replace(/-/g, '').substring(0, 16);
+
+        // Extension from URL or default
+        let ext = 'jpg';
+        const urlExt = url.split('?')[0].match(/\.(\w{3,4})$/);
+        if (urlExt) ext = urlExt[1].toLowerCase();
+
+        const filename = `${prefix}_${blockId}.${ext}`;
+        console.log(`   [FOUND_IMAGE_BLOCK] ${pageTitle.substring(0, 20)} → ${blockId}`);
+
+        tasks.push(downloadQueue.add(() => downloadWithRetry(url, filename)));
     }
+
+    const results = await Promise.all(tasks);
+    results.forEach(r => { if (r) images.push(r); });
 
     return images;
 }
 
-/**
- * Legacy: Extract images from blocks (returns Notion URLs directly)
- * Use extractAndDownloadImages for local storage
- */
-function extractImages(blocks) {
-    const images = [];
-    for (const block of blocks) {
-        if (block.type === 'image') {
-            const url = block.image.file?.url || block.image.external?.url;
-            if (url) images.push(url);
-        }
-    }
-    return images;
-}
-
-/**
- * Query a database and return all items
- */
-async function queryDatabase(databaseId) {
+// ===========================
+// Database Query
+// ===========================
+async function queryDatabase(dbId) {
     const items = [];
-    let cursor = undefined;
-
+    let cursor;
     do {
-        const response = await notion.databases.query({
-            database_id: databaseId,
+        const res = await notion.databases.query({
+            database_id: dbId,
             start_cursor: cursor,
             page_size: 100,
         });
-        items.push(...response.results);
-        cursor = response.has_more ? response.next_cursor : undefined;
+        items.push(...res.results);
+        cursor = res.has_more ? res.next_cursor : null;
     } while (cursor);
-
     return items;
 }
 
-/**
- * Fetch Open Graph data (title, description, image) from a URL
- */
-async function fetchOG(url) {
-    try {
-        // Simple fetch with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
-
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-
-        if (!res.ok) return null;
-        const html = await res.text();
-
-        // Helper to extract meta content
-        const getMeta = (prop) => {
-            const match = html.match(new RegExp(`<meta\\s+(?:property|name)=["']${prop}["']\\s+content=["']([^"']+)["']`, 'i'));
-            return match ? match[1] : null;
-        };
-
-        const title = getMeta('og:title') || getMeta('twitter:title') || '';
-        const description = getMeta('og:description') || getMeta('twitter:description') || '';
-        const image = getMeta('og:image') || getMeta('twitter:image') || '';
-
-        return { title, description, image, url };
-    } catch (e) {
-        // console.warn(`   ⚠️ OG Fetch failed for ${url}: ${e.message}`);
-        return null;
-    }
-}
-
-/**
- * Parse a database item into a simple object
- * Downloads images locally and stores local paths
- */
+// ===========================
+// Parse Database Item
+// ===========================
 async function parseDbItem(page) {
     const props = page.properties;
 
-    // Get title (try common property names)
+    // Title
     let title = '';
     for (const key of ['이름', 'Name', 'Title', '제목']) {
         if (props[key]?.title) {
@@ -274,77 +234,41 @@ async function parseDbItem(page) {
         }
     }
 
-    // Get page content blocks
     const blocks = await getBlocks(page.id);
-
-    // Generate filename prefix from page ID (first 8 chars)
     const prefix = page.id.replace(/-/g, '').substring(0, 8);
+    const images = await extractAndDownloadImages(blocks, prefix, title || 'Untitled');
 
-    // Download images locally
-    const images = await extractAndDownloadImages(blocks, prefix);
-
-    // Extract text content (Legacy - for Search/Stem)
     const textContent = [];
-
-    // Extract Rich Content (New - for Modal with Media)
     const richContent = [];
 
     for (const block of blocks) {
-        // 1. Text Blocks
         if (block.type === 'paragraph') {
-            const richText = block.paragraph.rich_text;
-            const text = extractText(richText);
+            const text = extractText(block.paragraph.rich_text);
             if (text) {
                 textContent.push(text);
                 richContent.push({ type: 'paragraph', text });
-
-                // Extract Inline Links -> Convert to Toasts (Bookmarks)
-                const links = extractLinks(richText);
-                links.forEach(linkUrl => {
-                    richContent.push({ type: 'bookmark', url: linkUrl, meta: { title: linkUrl } });
+                extractLinks(block.paragraph.rich_text).forEach(url => {
+                    richContent.push({ type: 'bookmark', url, meta: { title: url } });
                 });
             }
         }
         else if (block.type.startsWith('heading_')) {
-            const richText = block[block.type].rich_text;
-            const text = extractText(richText);
+            const text = extractText(block[block.type].rich_text);
             if (text) {
                 textContent.push(text);
                 richContent.push({ type: 'heading', level: block.type, text });
-
-                // Extract Inline Links
-                const links = extractLinks(richText);
-                links.forEach(linkUrl => {
-                    richContent.push({ type: 'bookmark', url: linkUrl, meta: { title: linkUrl } });
-                });
             }
         }
-        // 2. Media Blocks
         else if (block.type === 'video') {
             const url = block.video.external?.url || block.video.file?.url;
-            if (url) {
-                richContent.push({ type: 'video', url });
-            }
+            if (url) richContent.push({ type: 'video', url });
         }
         else if (block.type === 'embed') {
-            const url = block.embed.url;
-            if (url) {
-                // Treat embed as video or link depending on URL? 
-                // Mostly YouTube generic embeds come here too
-                richContent.push({ type: 'video', url });
-            }
+            if (block.embed.url) richContent.push({ type: 'embed', url: block.embed.url });
         }
-        // 3. Bookmark Blocks (Links)
         else if (block.type === 'bookmark') {
-            const url = block.bookmark.url;
-            if (url) {
-                // Fetch OG data
-                const ogData = await fetchOG(url);
-                richContent.push({
-                    type: 'bookmark',
-                    url,
-                    meta: ogData || { title: url, description: '', image: '' }
-                });
+            if (block.bookmark.url) {
+                richContent.push({ type: 'bookmark', url: block.bookmark.url, meta: { title: block.bookmark.url } });
             }
         }
     }
@@ -353,8 +277,8 @@ async function parseDbItem(page) {
         id: page.id,
         title,
         description: textContent[0] || '',
-        content: textContent, // Keep for backward compatibility
-        richContent,          // New structured content
+        content: textContent,
+        richContent,
         images,
         imageUrl: images[0] || '',
         properties: props,
@@ -362,140 +286,82 @@ async function parseDbItem(page) {
 }
 
 // ===========================
-// Main Build Function
+// Main Build
 // ===========================
-async function buildPortfolioData() {
-    console.log('🚀 Starting portfolio data build...\n');
-    console.log(`📍 Main Page ID: ${MAIN_PAGE_ID}\n`);
+async function build() {
+    console.log('🚀 Starting build...\n');
 
     const portfolioData = {
-        branches: [],
-        stem: [],
-        career: [],
-        roots: [],
-        beliefs: [],
-        rootsStructure: null, // 뿌리 페이지 구조 (코드 블록에서 가져옴)
+        branches: [], stem: [], career: [], roots: [], beliefs: [],
         detailedPortfolios: {},
-        _meta: {
-            buildTime: new Date().toISOString(),
-            expiresApprox: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // ~1 hour
-        }
     };
 
-    try {
-        // Step 1: Get all blocks from the main page
-        console.log('📥 Fetching main page blocks...');
-        const blocks = await getBlocks(MAIN_PAGE_ID);
-        console.log(`   Found ${blocks.length} blocks\n`);
+    stats = { found: 0, downloaded: 0, skipped: 0, failed: 0 };
 
-        // Step 1.5: Extract code blocks (뿌리 페이지 구조 등)
-        console.log('📝 Looking for code blocks...');
-        for (const block of blocks) {
-            if (block.type === 'code') {
-                const codeContent = extractText(block.code.rich_text);
-                const language = block.code.language;
-                console.log(`   Found code block (${language}): ${codeContent.substring(0, 50)}...`);
+    // Get main page blocks
+    console.log('📥 Fetching main page...');
+    const blocks = await getBlocks(MAIN_PAGE_ID);
+    console.log(`   ${blocks.length} blocks\n`);
 
-                // Try to parse as JSON (뿌리 페이지 구조)
-                if (language === 'json' || codeContent.trim().startsWith('{') || codeContent.trim().startsWith('[')) {
-                    try {
-                        portfolioData.rootsStructure = JSON.parse(codeContent);
-                        console.log('   ✅ Parsed as rootsStructure');
-                    } catch (e) {
-                        console.log('   ⚠️ Could not parse as JSON, storing as raw text');
-                        portfolioData.rootsStructure = codeContent;
-                    }
-                } else {
-                    // Store as raw text if not JSON
-                    if (!portfolioData.rootsStructure) {
-                        portfolioData.rootsStructure = codeContent;
-                    }
-                }
-            }
+    // Extract code blocks (php → rootsStructure)
+    for (const block of blocks) {
+        if (block.type === 'code' && block.code.language === 'php') {
+            portfolioData.rootsStructure = extractText(block.code.rich_text);
         }
-        console.log('');
-
-        // Step 2: Find all child databases
-        const databases = [];
-        for (const block of blocks) {
-            if (block.type === 'child_database') {
-                databases.push({
-                    id: block.id,
-                    title: block.child_database.title,
-                });
-            }
-        }
-
-        console.log(`📊 Found ${databases.length} databases:\n`);
-        for (const db of databases) {
-            console.log(`   - ${db.title} (${db.id})`);
-        }
-        console.log('');
-
-        // Step 3: Process each database
-        for (const db of databases) {
-            console.log(`\n📂 Processing: ${db.title}`);
-
-            try {
-                const items = await queryDatabase(db.id);
-                console.log(`   Found ${items.length} items`);
-
-                const parsedItems = [];
-                for (const item of items) {
-                    const parsed = await parseDbItem(item);
-                    parsedItems.push(parsed);
-                    process.stdout.write('.');
-                }
-                console.log(' ✅');
-
-                // Categorize by database name
-                const lowerTitle = db.title.toLowerCase();
-
-                if (lowerTitle.includes('가지') || lowerTitle.includes('branch')) {
-                    portfolioData.branches = parsedItems;
-                } else if (lowerTitle.includes('줄기') && lowerTitle.includes('경력')) {
-                    portfolioData.career = parsedItems;
-                } else if (lowerTitle.includes('줄기') || lowerTitle.includes('stem')) {
-                    portfolioData.stem = parsedItems;
-                } else if (lowerTitle.includes('뿌리') || lowerTitle.includes('root')) {
-                    portfolioData.roots = parsedItems;
-                } else if (lowerTitle.includes('신념') || lowerTitle.includes('belief')) {
-                    portfolioData.beliefs = parsedItems;
-                } else if (lowerTitle.includes('상세') || lowerTitle.includes('detail')) {
-                    portfolioData.detailedPortfolios[db.title] = parsedItems;
-                } else {
-                    // Unknown category - store by original name
-                    portfolioData.detailedPortfolios[db.title] = parsedItems;
-                }
-
-            } catch (err) {
-                console.error(`   ⚠️ Error: ${err.message}`);
-            }
-        }
-
-        // Step 4: Save to JSON
-        const outputPath = path.join(DATA_DIR, 'portfolio.json');
-        fs.writeFileSync(outputPath, JSON.stringify(portfolioData, null, 2));
-
-        console.log('\n' + '═'.repeat(50));
-        console.log('✨ Build complete!');
-        console.log(`   📁 Output: ${outputPath}`);
-        console.log(`   📊 Branches: ${portfolioData.branches.length}`);
-        console.log(`   📊 Stem: ${portfolioData.stem.length}`);
-        console.log(`   📊 Career: ${portfolioData.career.length}`);
-        console.log(`   📊 Roots: ${portfolioData.roots.length}`);
-        console.log(`   📊 Beliefs: ${portfolioData.beliefs.length}`);
-        console.log(`   📊 Detailed: ${Object.keys(portfolioData.detailedPortfolios).length} categories`);
-        console.log('═'.repeat(50));
-
-    } catch (error) {
-        console.error('\n❌ Build failed:', error.message);
-        if (error.code === 'unauthorized') {
-            console.error('   Check your NOTION_TOKEN in .env file');
-        }
-        process.exit(1);
     }
+
+    // Find databases
+    const databases = blocks
+        .filter(b => b.type === 'child_database')
+        .map(b => ({ id: b.id, title: b.child_database.title }));
+
+    console.log(`📊 ${databases.length} databases found\n`);
+
+    // Process each database
+    for (const db of databases) {
+        console.log(`\n📂 ${db.title}`);
+        try {
+            const items = await queryDatabase(db.id);
+            console.log(`   ${items.length} items`);
+
+            const parsed = [];
+            for (const item of items) {
+                parsed.push(await parseDbItem(item));
+                process.stdout.write('.');
+            }
+            console.log(' ✅');
+
+            // Categorize
+            const t = db.title.toLowerCase();
+            if (t.includes('가지') || t.includes('branch')) portfolioData.branches = parsed;
+            else if (t.includes('줄기') && t.includes('경력')) portfolioData.career = parsed;
+            else if (t.includes('줄기')) portfolioData.stem = parsed;
+            else if (t.includes('뿌리') || t.includes('root')) portfolioData.roots = parsed;
+            else if (t.includes('신념')) portfolioData.beliefs = parsed;
+            else portfolioData.detailedPortfolios[db.title] = parsed;
+
+        } catch (e) {
+            console.error(`   ⚠️ ${e.message}`);
+        }
+    }
+
+    // Save
+    const outPath = path.join(DATA_DIR, 'portfolio.json');
+    fs.writeFileSync(outPath, JSON.stringify(portfolioData, null, 2));
+
+    // Summary
+    console.log('\n' + '═'.repeat(40));
+    console.log('✨ Build complete!');
+    console.log(`   📁 ${outPath}`);
+    console.log(`   🔍 Found: ${stats.found}`);
+    console.log(`   ✅ Downloaded: ${stats.downloaded}`);
+    console.log(`   ⏭️  Skipped: ${stats.skipped}`);
+    console.log(`   ❌ Failed: ${stats.failed}`);
+    console.log(`   📂 Local files: ${fs.readdirSync(IMAGES_DIR).length}`);
+    console.log('═'.repeat(40));
 }
 
-// Run
-buildPortfolioData();
+build().catch(e => {
+    console.error('❌ Build failed:', e.message);
+    process.exit(1);
+});
