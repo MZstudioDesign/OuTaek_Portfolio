@@ -4,13 +4,13 @@
  * ========================================
  * 
  * Notion 페이지에서 모든 데이터를 가져와 portfolio.json을 생성합니다.
- * 이미지는 다운로드하지 않고 Notion URL을 직접 사용합니다.
- * 
- * ⚠️ 주의: Notion 이미지 URL은 약 1시간 후 만료됩니다.
- *          배포 전 또는 이미지가 깨지면 다시 실행하세요.
+ * 이미지는 로컬에 다운로드하여 assets/images/portfolio/에 저장됩니다.
  * 
  * 사용법:
  *   npm run build-data
+ * 
+ * 환경 변수:
+ *   NOTION_TOKEN - Notion API 토큰 (.env 파일에 설정)
  * 
  * 환경 변수:
  *   NOTION_TOKEN - Notion API 토큰 (.env 파일에 설정)
@@ -22,6 +22,8 @@ require('dotenv').config();
 const { Client } = require('@notionhq/client');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const http = require('http');
 
 // ===========================
 // Configuration
@@ -31,9 +33,11 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN;
 // 메인 페이지 ID (유저가 제공한 URL에서 추출)
 const MAIN_PAGE_ID = '2d41f3d0ca3580a4883cdcbeceb7ad98';
 
-// Output directory
+// Output directories
 const DATA_DIR = path.join(__dirname, '..', 'data');
+const IMAGES_DIR = path.join(__dirname, '..', 'assets', 'images', 'portfolio');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
 
 // ===========================
 // Validate Environment
@@ -97,7 +101,99 @@ function extractLinks(richTextArray) {
 }
 
 /**
- * Extract images from blocks (returns Notion URLs directly)
+ * Download an image from URL and save locally
+ * @param {string} url - Image URL
+ * @param {string} filename - Local filename to save as
+ * @returns {Promise<string>} - Local path if successful, original URL if failed
+ */
+async function downloadImage(url, filename) {
+    return new Promise((resolve) => {
+        try {
+            const localPath = `assets/images/portfolio/${filename}`;
+            const fullPath = path.join(IMAGES_DIR, filename);
+
+            // Skip if already downloaded
+            if (fs.existsSync(fullPath)) {
+                resolve(localPath);
+                return;
+            }
+
+            const protocol = url.startsWith('https') ? https : http;
+
+            const request = protocol.get(url, (response) => {
+                // Handle redirects
+                if (response.statusCode === 301 || response.statusCode === 302) {
+                    downloadImage(response.headers.location, filename).then(resolve);
+                    return;
+                }
+
+                if (response.statusCode !== 200) {
+                    resolve(url); // Return original URL on failure
+                    return;
+                }
+
+                const file = fs.createWriteStream(fullPath);
+                response.pipe(file);
+
+                file.on('finish', () => {
+                    file.close();
+                    resolve(localPath);
+                });
+
+                file.on('error', () => {
+                    fs.unlink(fullPath, () => { });
+                    resolve(url);
+                });
+            });
+
+            request.on('error', () => {
+                resolve(url); // Return original URL on failure
+            });
+
+            request.setTimeout(10000, () => {
+                request.destroy();
+                resolve(url);
+            });
+        } catch (e) {
+            resolve(url); // Return original URL on any error
+        }
+    });
+}
+
+/**
+ * Extract images from blocks and download them locally
+ * @param {Array} blocks - Notion blocks
+ * @param {string} prefix - Filename prefix (e.g., 'branches_01')
+ * @returns {Promise<string[]>} - Array of local image paths
+ */
+async function extractAndDownloadImages(blocks, prefix) {
+    const images = [];
+    let index = 0;
+
+    for (const block of blocks) {
+        if (block.type === 'image') {
+            const url = block.image.file?.url || block.image.external?.url;
+            if (url) {
+                // Generate filename from URL or use index
+                let ext = 'jpg';
+                const urlPath = new URL(url).pathname;
+                const match = urlPath.match(/\.([a-zA-Z]{3,4})(?:\?|$)/);
+                if (match) ext = match[1].toLowerCase();
+
+                const filename = `${prefix}_${index}.${ext}`;
+                const localPath = await downloadImage(url, filename);
+                images.push(localPath);
+                index++;
+            }
+        }
+    }
+
+    return images;
+}
+
+/**
+ * Legacy: Extract images from blocks (returns Notion URLs directly)
+ * Use extractAndDownloadImages for local storage
  */
 function extractImages(blocks) {
     const images = [];
@@ -164,6 +260,7 @@ async function fetchOG(url) {
 
 /**
  * Parse a database item into a simple object
+ * Downloads images locally and stores local paths
  */
 async function parseDbItem(page) {
     const props = page.properties;
@@ -179,7 +276,12 @@ async function parseDbItem(page) {
 
     // Get page content blocks
     const blocks = await getBlocks(page.id);
-    const images = extractImages(blocks);
+
+    // Generate filename prefix from page ID (first 8 chars)
+    const prefix = page.id.replace(/-/g, '').substring(0, 8);
+
+    // Download images locally
+    const images = await extractAndDownloadImages(blocks, prefix);
 
     // Extract text content (Legacy - for Search/Stem)
     const textContent = [];
