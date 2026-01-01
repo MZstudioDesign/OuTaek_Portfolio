@@ -85,10 +85,16 @@ function createDataMap(portfolioData) {
 }
 
 function findItem(name, map) {
+    // Exact match first
     if (map.has(name)) return map.get(name);
+
+    // Normalized exact match (trim whitespace)
+    const normalizedName = name.trim().toLowerCase();
     for (const [key, val] of map) {
-        if (key.includes(name) || name.includes(key)) return val;
+        if (key.trim().toLowerCase() === normalizedName) return val;
     }
+
+    // No fuzzy matching - return null if no exact match
     return null;
 }
 
@@ -132,7 +138,9 @@ function renderMindmap(nodes, links, dataMap, detailedPortfolios = {}) {
         if (item && item.images && item.images.length > 0) {
             const imgUrl = item.images[0].url || item.images[0];
             innerHTML = `
-                <div class="node-preview" style="background-image: url('${imgUrl}')"></div>
+                <div class="node-preview">
+                    <img src="${imgUrl}" alt="${node.data.name}" loading="lazy" decoding="async">
+                </div>
                 <div class="node-label has-image">${node.data.name}</div>
             `;
             el.dataset.hasImage = "true";

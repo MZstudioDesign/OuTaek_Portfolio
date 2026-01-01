@@ -232,11 +232,17 @@
 .canvas-node .node-preview {
     position: absolute;
     inset: 0;
-    background-size: cover;
-    background-position: center;
+    overflow: hidden;
     opacity: 0.4;
     filter: grayscale(100%);
     transition: all 0.3s;
+}
+
+.canvas-node .node-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
 .canvas-node:hover .node-preview {
