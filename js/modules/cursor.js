@@ -6,6 +6,11 @@
  */
 
 export function initCursor() {
+    // Disable on touch devices or small screens
+    if (window.matchMedia("(hover: none) and (pointer: coarse)").matches || window.innerWidth <= 1024) {
+        return;
+    }
+
     const cursor = document.querySelector('.cursor');
     const follower = document.querySelector('.cursor-follower');
 

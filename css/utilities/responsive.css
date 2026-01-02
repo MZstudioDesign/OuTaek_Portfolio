@@ -8,7 +8,9 @@
    =========================== */
 
 /* Hide cursor on touch devices */
-@media (hover: none) and (pointer: coarse) {
+/* Hide cursor on touch devices OR small screens */
+@media (hover: none) and (pointer: coarse),
+(max-width: 1024px) {
 
     .cursor,
     .cursor-follower {
