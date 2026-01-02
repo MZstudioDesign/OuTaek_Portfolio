@@ -392,9 +392,11 @@ build().then(async () => {
     }
 
     let files = fs.readdirSync(IMAGES_DIR);
-    let originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+    // EXCLUDE .gif from conversion (keep animations)
+    let originals = files.filter(f => /\.(png|jpg|jpeg)$/i.test(f));
+    const gifFiles = files.filter(f => /\.gif$/i.test(f));
 
-    console.log(`   📊 Found ${originals.length} images to convert\n`);
+    console.log(`   📊 Found ${originals.length} images to convert (excluding ${gifFiles.length} GIFs)\n`);
 
     let converted = 0;
     for (const file of originals) {
@@ -419,7 +421,8 @@ build().then(async () => {
 
     // Re-read folder after conversion
     files = fs.readdirSync(IMAGES_DIR);
-    originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+    // Only delete converted formats, NOT gifs
+    originals = files.filter(f => /\.(png|jpg|jpeg)$/i.test(f));
 
     for (const file of originals) {
         const filePath = path.join(IMAGES_DIR, file);
@@ -449,12 +452,14 @@ build().then(async () => {
 
     // Re-read folder
     files = fs.readdirSync(IMAGES_DIR);
-    originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+    originals = files.filter(f => /\.(png|jpg|jpeg)$/i.test(f)); // Strict check (no gifs)
+    const gifs = files.filter(f => /\.gif$/i.test(f));
     const webpFiles = files.filter(f => /\.webp$/i.test(f));
 
     console.log(`   📁 Total files: ${files.length}`);
     console.log(`   🖼️ WebP files: ${webpFiles.length}`);
-    console.log(`   ⚠️ Remaining originals: ${originals.length}\n`);
+    console.log(`   👾 Animated GIFs: ${gifs.length} (preserved)`);
+    console.log(`   ⚠️ Remaining raster originals: ${originals.length}\n`);
 
     // Retry conversion for any remaining originals
     if (originals.length > 0) {
@@ -499,10 +504,11 @@ build().then(async () => {
 
     while (retryCount < MAX_RETRIES) {
         files = fs.readdirSync(IMAGES_DIR);
-        originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+        // Exclude GIFs from retry loop
+        originals = files.filter(f => /\.(png|jpg|jpeg)$/i.test(f));
 
         if (originals.length === 0) {
-            console.log(`   ✅ All files converted to WebP!`);
+            console.log(`   ✅ All target files converted to WebP!`);
             break;
         }
 
@@ -545,8 +551,9 @@ build().then(async () => {
 
     // Final verification
     files = fs.readdirSync(IMAGES_DIR);
-    originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+    originals = files.filter(f => /\.(png|jpg|jpeg)$/i.test(f)); // No GIFs in failure check
     const finalWebpFiles = files.filter(f => /\.webp$/i.test(f));
+    const finalGifs = files.filter(f => /\.gif$/i.test(f));
 
     // Check portfolio.json exists
     const portfolioJsonPath = path.join(DATA_DIR, 'portfolio.json');
@@ -554,6 +561,7 @@ build().then(async () => {
 
     console.log(`\n   ✅ portfolio.json: ${portfolioExists ? 'EXISTS' : 'MISSING'}`);
     console.log(`   ✅ WebP images: ${finalWebpFiles.length}`);
+    console.log(`   ✅ Preserved GIFs: ${finalGifs.length}`);
     console.log(`   ${originals.length === 0 ? '✅' : '❌'} Remaining originals: ${originals.length}`);
 
     if (originals.length > 0) {
@@ -574,7 +582,8 @@ build().then(async () => {
     console.log('═'.repeat(50));
     console.log(`   📁 portfolio.json: Ready`);
     console.log(`   🖼️ Images: ${finalWebpFiles.length} WebP files`);
-    console.log(`   🧹 Cleanup: Complete (0 originals remaining)`);
+    console.log(`   👾 GIFs: ${finalGifs.length} preserved`);
+    console.log(`   🧹 Cleanup: Complete (0 raster originals)`);
     console.log('═'.repeat(50) + '\n');
 
 }).catch(e => {

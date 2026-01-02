@@ -20,9 +20,9 @@ function normalizeItems(items) {
         if (Array.isArray(newItem.images) && newItem.images.length > 0) {
             newItem.images = newItem.images.map(img => {
                 const url = typeof img === 'string' ? img : img.url;
-                // Force .webp extension for local portfolio images
+                // Force .webp extension for local portfolio images (BUT keep GIFs)
                 if (url.includes('assets/images/portfolio/')) {
-                    return { url: url.replace(/\.(png|jpg|jpeg|gif)$/i, '.webp') };
+                    return { url: url.replace(/\.(png|jpg|jpeg)$/i, '.webp') };
                 }
                 return { url };
             });
@@ -30,7 +30,7 @@ function normalizeItems(items) {
 
         // Also fix the primary imageUrl if it exists
         if (newItem.imageUrl && newItem.imageUrl.includes('assets/images/portfolio/')) {
-            newItem.imageUrl = newItem.imageUrl.replace(/\.(png|jpg|jpeg|gif)$/i, '.webp');
+            newItem.imageUrl = newItem.imageUrl.replace(/\.(png|jpg|jpeg)$/i, '.webp');
         }
 
         if (Array.isArray(newItem.content) && !newItem.rawTexts) {

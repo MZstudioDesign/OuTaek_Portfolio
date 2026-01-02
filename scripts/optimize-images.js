@@ -33,9 +33,11 @@ async function optimizeImages() {
     }
 
     const files = fs.readdirSync(IMAGES_DIR);
-    const imageFiles = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+    // Exclude GIFs from optimization
+    const imageFiles = files.filter(f => /\.(png|jpg|jpeg)$/i.test(f));
+    const skippedGifs = files.filter(f => /\.gif$/i.test(f)).length;
 
-    console.log(`📊 Found ${imageFiles.length} images to optimize\n`);
+    console.log(`📊 Found ${imageFiles.length} images to optimize (skipped ${skippedGifs} GIFs)\n`);
 
     let totalOriginal = 0;
     let totalOptimized = 0;
