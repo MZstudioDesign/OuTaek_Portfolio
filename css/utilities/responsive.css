@@ -359,22 +359,7 @@
 /* ===========================
    Reduced Motion
    =========================== */
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-
-    .shooting-star,
-    .twinkle,
-    .milky-way {
-        animation: none !important;
-    }
-}
+/* Reduced motion rules removed per user request to ensure features are active */
 
 /* ===========================
    High Contrast Mode

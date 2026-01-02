@@ -71,15 +71,10 @@ export function initializeAllPages() {
     // Priority 1: Branches (visible immediately)
     initializePage('branches');
 
-    // Priority 2: Stem (deferred, but soon)
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => initializePage('stem'), { timeout: 1000 });
-        requestIdleCallback(() => initializePage('roots'), { timeout: 2000 });
-    } else {
-        // Fallback for Safari
-        setTimeout(() => initializePage('stem'), 500);
-        setTimeout(() => initializePage('roots'), 1000);
-    }
+    // Deferred Loading for Stem/Roots is now handled:
+    // 1. On specific page navigation (in page-transitions.js)
+    // 2. Or could be added here with very long delays if desired, 
+    //    but for per-user request we remove auto-init to prevent intro stutter.
 }
 
 /**

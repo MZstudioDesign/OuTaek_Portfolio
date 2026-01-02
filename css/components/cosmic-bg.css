@@ -67,11 +67,11 @@
     display: none;
 }
 
-/* Shooting Stars - Hidden initially, shown after intro */
+/* Shooting Stars - Always Visible */
 .shooting-stars {
     display: block;
-    opacity: 0;
-    transition: opacity 1s ease-out;
+    opacity: 1;
+    /* Forced visible */
     position: fixed;
     top: 0;
     left: 0;
@@ -80,6 +80,7 @@
     z-index: 50;
     pointer-events: none;
     overflow: hidden;
+    /* transition: opacity 1s ease-out; Removed to prevent hiding */
 }
 
 body.intro-complete .shooting-stars {
