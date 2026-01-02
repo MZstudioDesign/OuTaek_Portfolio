@@ -79,9 +79,29 @@ function createDataMap(portfolioData) {
     addItems(portfolioData.stem);
     addItems(portfolioData.career);
 
+    // CRITICAL FIX: Register Category Name itself so findItem("PPT...") succeeds
+    const registerCategory = (key, items) => {
+        addItems(items); // Register children items
+        // Register the Category Key itself as a valid item
+        map.set(key.trim(), {
+            title: key,
+            type: 'category',
+            items: items // Attach items for easy access
+        });
+    };
+
+    // 1. Process Root Level Arrays (The main detailed portfolios)
+    const reserved = ['branches', 'stem', 'career', 'roots', 'beliefs', 'detailedPortfolios', 'rootsStructure'];
+    Object.keys(portfolioData).forEach(key => {
+        if (!reserved.includes(key) && Array.isArray(portfolioData[key])) {
+            registerCategory(key, portfolioData[key]);
+        }
+    });
+
+    // 2. Process Nested Arrays (Legacy/Fallback)
     if (portfolioData.detailedPortfolios) {
-        Object.values(portfolioData.detailedPortfolios).forEach(items => {
-            addItems(items);
+        Object.entries(portfolioData.detailedPortfolios).forEach(([key, items]) => {
+            registerCategory(key, items);
         });
     }
 
@@ -145,16 +165,29 @@ function renderMindmap(nodes, links, dataMap, detailedPortfolios = {}) {
         const item = findItem(node.data.name, dataMap);
 
         let innerHTML = '';
+
+        // 1. Check for Direct Images
+        let previewImg = null;
         if (item && item.images && item.images.length > 0) {
-            const imgUrl = item.images[0].url || item.images[0];
+            previewImg = item.images[0].url || item.images[0];
+        }
+        // 2. Check for Category Items (Use first item's image as preview)
+        else if (item && item.items && item.items.length > 0) {
+            const firstItem = item.items[0];
+            if (firstItem.images && firstItem.images.length > 0) {
+                previewImg = firstItem.images[0].url || firstItem.images[0];
+            }
+        }
+
+        if (previewImg) {
             innerHTML = `
                 <div class="node-preview">
-                    <img src="${imgUrl}" alt="${node.data.name}" loading="lazy" decoding="async">
+                    <img src="${previewImg}" alt="${node.data.name}" loading="lazy" decoding="async">
                 </div>
                 <div class="node-label has-image">${node.data.name}</div>
             `;
             el.dataset.hasImage = "true";
-            el.dataset.itemId = item.id;
+            if (item.id) el.dataset.itemId = item.id;
             el.dataset.nodeName = node.data.name;
             nodeItemMap.set(node.data.name, item);
         } else {
@@ -180,7 +213,8 @@ function renderMindmap(nodes, links, dataMap, detailedPortfolios = {}) {
         const nodeName = nodeEl.dataset.nodeName;
         const item = nodeItemMap.get(nodeName) || findItem(nodeName, dataMap);
 
-        if (!item || (!item.images?.length && !item.richContent?.length && !item.content?.length)) {
+        // Allow if it has images, content, OR is a Category with items
+        if (!item || (!item.images?.length && !item.richContent?.length && !item.content?.length && !item.items?.length)) {
             console.log('[Roots] Empty node clicked:', nodeName);
             return;
         }
@@ -222,20 +256,27 @@ function openModal(item) {
     }
 
     // 2. Detailed Portfolio Gallery
-    // Nodes ending with "상세 포트폴리오" should show gallery from detailedPortfolios
-    let detailedKey = null;
+    let detailedItems = [];
 
     if (item.title.includes('상세 포트폴리오')) {
-        // Dynamic matching: find JSON key that matches node title
-        const allKeys = Object.keys(window.portfolioData?.detailedPortfolios || {});
-        detailedKey = allKeys.find(k => k.trim() === item.title.trim());
-        console.log(`[Modal] "${item.title}" → detailedKey: "${detailedKey}"`);
-    }
+        const title = item.title.trim();
 
-    let detailedItems = [];
-    if (detailedKey && window.portfolioData?.detailedPortfolios) {
-        detailedItems = window.portfolioData.detailedPortfolios[detailedKey] || [];
-        console.log(`[Modal] Looking for gallery: "${detailedKey}" -> ${detailedItems.length} items`);
+        // 1. Try finding in detailedPortfolios (Nested)
+        if (window.portfolioData?.detailedPortfolios) {
+            const nestedKey = Object.keys(window.portfolioData.detailedPortfolios)
+                .find(k => k.trim() === title);
+            if (nestedKey) detailedItems = window.portfolioData.detailedPortfolios[nestedKey];
+        }
+
+        // 2. Try finding in ROOT (This is where they actually are!)
+        if (!detailedItems.length && window.portfolioData) {
+            const rootKey = Object.keys(window.portfolioData)
+                .find(k => k.trim() === title);
+            if (rootKey) {
+                console.log(`[Modal] Found data in ROOT: "${rootKey}"`);
+                detailedItems = window.portfolioData[rootKey];
+            }
+        }
     }
 
     if (detailedItems.length > 0) {
