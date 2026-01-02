@@ -22,7 +22,35 @@ export async function initBranchesPage() {
     // 2. Initialize Interaction (Horizontal Scroll)
     initHorizontalScroll();
 
+    // 3. Mobile: Move number inside work-info for responsive positioning
+    if (window.innerWidth <= 768) {
+        repositionNumbersForMobile();
+    }
+
     console.log('[Branches Page] Initialized');
+}
+
+/**
+ * Move work-number inside work-info on mobile for responsive positioning
+ */
+function repositionNumbersForMobile() {
+    const panels = document.querySelectorAll('.work-panel');
+    panels.forEach(panel => {
+        const workBg = panel.querySelector('.work-bg');
+        const workInfo = panel.querySelector('.work-info');
+        const workNumber = panel.querySelector('.work-number');
+
+        if (workBg && workInfo && workNumber) {
+            // Clone number and add to work-info as background
+            const numberClone = workNumber.cloneNode(true);
+            numberClone.classList.add('mobile-repositioned');
+            workInfo.style.position = 'relative';
+            workInfo.insertBefore(numberClone, workInfo.firstChild);
+
+            // Hide original
+            workBg.style.display = 'none';
+        }
+    });
 }
 
 /**

@@ -390,14 +390,102 @@ function getYoutubeId(url) {
 
 export function getDetailedMap() {
     return {
+        '현수막 / 배너': null, // Handled individually below
         '현수막': '현수막 상세 포트폴리오',
         '배너': ' 배너 상세 포트폴리오',
         '카드뉴스': '카드뉴스 상세 포트폴리오',
+        '포스터 / 전단지': ' 포스터 / 전단지 상세 포트폴리오',
         '전단지': ' 포스터 / 전단지 상세 포트폴리오',
         '포스터': ' 포스터 / 전단지 상세 포트폴리오',
         '메뉴판': '메뉴판 상세 포트폴리오',
+        '블로그 스킨': '블로그 스킨 상세 포트폴리오',
         '블로그': '블로그 스킨 상세 포트폴리오',
-        'PPT': 'PPT / 상세페이지 상세 포트폴리오',
-        '상세페이지': 'PPT / 상세페이지 상세 포트폴리오',
+        'PPT / 상세페이지': 'PPT / 상세페이지 상세 포트폴리오',
+        // Note: Removed '상세페이지' alone to prevent false matches with product detail pages
     };
+}
+
+// ===========================
+// Image Lightbox
+// ===========================
+let lightboxElement = null;
+
+export function initImageLightbox() {
+    // Create lightbox element if not exists
+    if (!lightboxElement) {
+        lightboxElement = document.createElement('div');
+        lightboxElement.className = 'image-lightbox';
+        lightboxElement.innerHTML = `
+            <button class="lightbox-close">✕</button>
+            <div class="lightbox-container">
+                <img class="lightbox-img" src="" alt="Enlarged view">
+            </div>
+            <div class="lightbox-zoom-controls">
+                <button class="lightbox-zoom-btn" data-action="out">−</button>
+                <button class="lightbox-zoom-btn" data-action="in">+</button>
+            </div>
+        `;
+        document.body.appendChild(lightboxElement);
+
+        const img = lightboxElement.querySelector('.lightbox-img');
+        let scale = 1;
+
+        // Close button
+        lightboxElement.querySelector('.lightbox-close').onclick = closeLightbox;
+
+        // Click outside to close
+        lightboxElement.onclick = (e) => {
+            if (e.target === lightboxElement) closeLightbox();
+        };
+
+        // ESC to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightboxElement.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+
+        // Zoom buttons
+        lightboxElement.querySelectorAll('.lightbox-zoom-btn').forEach(btn => {
+            btn.onclick = () => {
+                if (btn.dataset.action === 'in') {
+                    scale = Math.min(scale + 0.5, 4);
+                } else {
+                    scale = Math.max(scale - 0.5, 1);
+                }
+                img.style.transform = `scale(${scale})`;
+                img.classList.toggle('zoomed', scale > 1);
+            };
+        });
+
+        // Click image to toggle zoom
+        img.onclick = () => {
+            scale = scale > 1 ? 1 : 2;
+            img.style.transform = `scale(${scale})`;
+            img.classList.toggle('zoomed', scale > 1);
+        };
+    }
+
+    // Add click listeners to all modal images
+    document.addEventListener('click', (e) => {
+        if (e.target.matches('.detail-img, .modal-img, .gallery-thumb')) {
+            e.preventDefault();
+            const imgUrl = e.target.src || e.target.style.backgroundImage.replace(/url\(['"]?([^'"]+)['"]?\)/i, '$1');
+            openLightbox(imgUrl);
+        }
+    });
+}
+
+function openLightbox(imgUrl) {
+    const img = lightboxElement.querySelector('.lightbox-img');
+    img.src = imgUrl;
+    img.style.transform = 'scale(1)';
+    img.classList.remove('zoomed');
+    lightboxElement.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    lightboxElement.classList.remove('active');
+    document.body.style.overflow = '';
 }

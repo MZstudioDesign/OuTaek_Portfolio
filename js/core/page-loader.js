@@ -61,13 +61,25 @@ export function initializePage(pageName) {
 }
 
 /**
- * Initialize all pages at once
- * Called during app bootstrap
+ * Initialize all pages with lazy loading
+ * - Branches: Immediate (user sees this first)
+ * - Stem/Roots: Deferred until browser is idle
+ * 
+ * This prevents animation frame drops during intro transition
  */
 export function initializeAllPages() {
-    Object.keys(pageInitializers).forEach(pageName => {
-        initializePage(pageName);
-    });
+    // Priority 1: Branches (visible immediately)
+    initializePage('branches');
+
+    // Priority 2: Stem (deferred, but soon)
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => initializePage('stem'), { timeout: 1000 });
+        requestIdleCallback(() => initializePage('roots'), { timeout: 2000 });
+    } else {
+        // Fallback for Safari
+        setTimeout(() => initializePage('stem'), 500);
+        setTimeout(() => initializePage('roots'), 1000);
+    }
 }
 
 /**

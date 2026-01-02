@@ -16,7 +16,8 @@ import { renderBeliefsContent } from '../modules/beliefs-renderer.js';
 import {
     renderGalleryView,
     renderStandardLayout,
-    getDetailedMap
+    getDetailedMap,
+    initImageLightbox
 } from '../modules/modal-renderer.js';
 
 export async function initRootsPage() {
@@ -24,6 +25,9 @@ export async function initRootsPage() {
 
     // 1. Initialize Interaction (Zoom/Pan)
     initCanvasInteraction();
+
+    // 1.5 Initialize Image Lightbox
+    initImageLightbox();
 
     // 2. Load Data
     const portfolioData = await loadPortfolioData();
@@ -99,13 +103,16 @@ function findItem(name, map) {
 }
 
 // ===========================
-// Mindmap Renderer
+// Mindmap Renderer (Optimized)
 // ===========================
 function renderMindmap(nodes, links, dataMap, detailedPortfolios = {}) {
     const target = document.querySelector('.canvas-content');
     if (!target) return;
 
     target.innerHTML = '';
+
+    // Use DocumentFragment to batch DOM insertions (prevents reflow)
+    const fragment = document.createDocumentFragment();
 
     // SVG Connections
     const svgNS = "http://www.w3.org/2000/svg";
@@ -121,9 +128,12 @@ function renderMindmap(nodes, links, dataMap, detailedPortfolios = {}) {
         path.style.strokeWidth = '1px';
         svg.appendChild(path);
     });
-    target.appendChild(svg);
+    fragment.appendChild(svg);
 
-    // DOM Nodes
+    // Store node-to-item mapping for event delegation
+    const nodeItemMap = new Map();
+
+    // DOM Nodes - append to fragment, not target
     nodes.forEach(node => {
         const el = document.createElement('div');
         el.className = `canvas-node depth-${node.depth}`;
@@ -145,25 +155,37 @@ function renderMindmap(nodes, links, dataMap, detailedPortfolios = {}) {
             `;
             el.dataset.hasImage = "true";
             el.dataset.itemId = item.id;
+            el.dataset.nodeName = node.data.name;
+            nodeItemMap.set(node.data.name, item);
         } else {
             innerHTML = `
                 <div class="node-point"></div>
                 <div class="node-label">${node.data.name}</div>
             `;
+            el.dataset.nodeName = node.data.name;
         }
         el.innerHTML = innerHTML;
 
-        // Click Handler
-        el.addEventListener('click', () => {
-            if (!item || (!item.images?.length && !item.richContent?.length && !item.content?.length)) {
-                console.log('[Roots] Empty node clicked:', node.data.name);
-                return;
-            }
-            openModal(item);
-        });
-
-        target.appendChild(el);
+        fragment.appendChild(el);
     });
+
+    // Single DOM insertion (1 reflow instead of 300+)
+    target.appendChild(fragment);
+
+    // Event Delegation: Single listener on parent instead of 300+ on nodes
+    target.addEventListener('click', (e) => {
+        const nodeEl = e.target.closest('.canvas-node');
+        if (!nodeEl) return;
+
+        const nodeName = nodeEl.dataset.nodeName;
+        const item = nodeItemMap.get(nodeName) || findItem(nodeName, dataMap);
+
+        if (!item || (!item.images?.length && !item.richContent?.length && !item.content?.length)) {
+            console.log('[Roots] Empty node clicked:', nodeName);
+            return;
+        }
+        openModal(item);
+    }, { once: false });
 }
 
 // ===========================
@@ -200,17 +222,20 @@ function openModal(item) {
     }
 
     // 2. Detailed Portfolio Gallery
-    const DETAILED_MAP = getDetailedMap();
+    // Nodes ending with "상세 포트폴리오" should show gallery from detailedPortfolios
     let detailedKey = null;
-    Object.keys(DETAILED_MAP).forEach(key => {
-        if (item.title.includes(key)) {
-            detailedKey = DETAILED_MAP[key];
-        }
-    });
+
+    if (item.title.includes('상세 포트폴리오')) {
+        // Dynamic matching: find JSON key that matches node title
+        const allKeys = Object.keys(window.portfolioData?.detailedPortfolios || {});
+        detailedKey = allKeys.find(k => k.trim() === item.title.trim());
+        console.log(`[Modal] "${item.title}" → detailedKey: "${detailedKey}"`);
+    }
 
     let detailedItems = [];
     if (detailedKey && window.portfolioData?.detailedPortfolios) {
         detailedItems = window.portfolioData.detailedPortfolios[detailedKey] || [];
+        console.log(`[Modal] Looking for gallery: "${detailedKey}" -> ${detailedItems.length} items`);
     }
 
     if (detailedItems.length > 0) {

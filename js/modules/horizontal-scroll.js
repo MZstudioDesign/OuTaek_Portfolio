@@ -60,6 +60,8 @@ export async function initHorizontalScroll() {
 
     const panels = track.querySelectorAll('.h-panel');
     const totalPanels = panels.length;
+    // ✅ Cache work-content elements to avoid DOM queries in animation loop
+    const contentElements = Array.from(panels).map(p => p.querySelector('.work-content'));
     let currentScroll = 0;
     let targetScroll = 0;
 
@@ -106,9 +108,10 @@ export async function initHorizontalScroll() {
             `;
             panel.style.opacity = opacity;
 
+            // ✅ Use cached content element instead of querySelector
             if (panel.hasAttribute('data-parallax')) {
                 const parallaxAmount = panelOffset * 0.15;
-                const content = panel.querySelector('.work-content');
+                const content = contentElements[i];
                 if (content) {
                     content.style.transform = `translateX(${parallaxAmount}px) translateZ(50px)`;
                 }

@@ -57,7 +57,33 @@
     }
 
     .work-number {
-        font-size: 15vw;
+        font-size: 30vw;
+    }
+
+    /* Position number behind title area on mobile */
+    .work-bg {
+        top: auto;
+        bottom: 20%;
+        height: auto;
+        justify-content: center;
+        padding-right: 0;
+    }
+
+    /* Mobile repositioned number (inside work-info) */
+    .work-number.mobile-repositioned {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        font-size: 35vw;
+        color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Ensure work-info content is above the number */
+    .work-info>*:not(.mobile-repositioned) {
+        position: relative;
+        z-index: 1;
     }
 
     /* Horizontal scroll - swipe hint */

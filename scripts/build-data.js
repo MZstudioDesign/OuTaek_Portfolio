@@ -488,12 +488,62 @@ build().then(async () => {
     }
 
     // ===========================
-    // Final Check
+    // Final Check with Retry Loop
     // ===========================
     console.log('\n' + '═'.repeat(50));
-    console.log('📋 Final Validation');
+    console.log('📋 Final Validation (with retry loop)');
     console.log('═'.repeat(50));
 
+    let retryCount = 0;
+    const MAX_RETRIES = 10;
+
+    while (retryCount < MAX_RETRIES) {
+        files = fs.readdirSync(IMAGES_DIR);
+        originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+
+        if (originals.length === 0) {
+            console.log(`   ✅ All files converted to WebP!`);
+            break;
+        }
+
+        console.log(`\n   🔄 Retry ${retryCount + 1}: Found ${originals.length} remaining originals...`);
+
+        for (const file of originals) {
+            const inputPath = path.join(IMAGES_DIR, file);
+            const baseName = path.parse(file).name;
+            const webpPath = path.join(IMAGES_DIR, `${baseName}.webp`);
+
+            // Convert if WebP doesn't exist
+            if (!fs.existsSync(webpPath)) {
+                try {
+                    const metadata = await sharp(inputPath).metadata();
+                    let pipeline = sharp(inputPath);
+                    if (metadata.width > MAX_WIDTH) {
+                        pipeline = pipeline.resize(MAX_WIDTH, null, { withoutEnlargement: true });
+                    }
+                    await pipeline.webp({ quality: QUALITY }).toFile(webpPath);
+                    console.log(`   ✅ Converted: ${file}`);
+                } catch (err) {
+                    console.error(`   ❌ Convert failed: ${file} - ${err.message}`);
+                    continue;
+                }
+            }
+
+            // Delete original if WebP exists
+            if (fs.existsSync(webpPath)) {
+                try {
+                    fs.unlinkSync(inputPath);
+                    console.log(`   🗑️ Deleted: ${file}`);
+                } catch (err) {
+                    console.warn(`   ⚠️ Delete failed: ${file} (${err.code})`);
+                }
+            }
+        }
+
+        retryCount++;
+    }
+
+    // Final verification
     files = fs.readdirSync(IMAGES_DIR);
     originals = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
     const finalWebpFiles = files.filter(f => /\.webp$/i.test(f));
@@ -502,12 +552,12 @@ build().then(async () => {
     const portfolioJsonPath = path.join(DATA_DIR, 'portfolio.json');
     const portfolioExists = fs.existsSync(portfolioJsonPath);
 
-    console.log(`   ✅ portfolio.json: ${portfolioExists ? 'EXISTS' : 'MISSING'}`);
+    console.log(`\n   ✅ portfolio.json: ${portfolioExists ? 'EXISTS' : 'MISSING'}`);
     console.log(`   ✅ WebP images: ${finalWebpFiles.length}`);
     console.log(`   ${originals.length === 0 ? '✅' : '❌'} Remaining originals: ${originals.length}`);
 
     if (originals.length > 0) {
-        console.log('\n❌ BUILD FAILED: Unconverted files remain:');
+        console.log('\n❌ BUILD FAILED: Unconverted files remain after max retries:');
         originals.forEach(f => console.log(`   - ${f}`));
         console.log('\n═'.repeat(50));
         process.exit(1);

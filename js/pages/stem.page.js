@@ -31,7 +31,8 @@ export async function initStemPage() {
 
     // 5. Initialize mobile career UI (header, arrows)
     if (window.innerWidth <= 768) {
-        initMobileCareerUI();
+        // Delay to ensure cards are rendered in DOM
+        setTimeout(() => initMobileCareerUI(), 150);
     }
 
     console.log('[Stem Page] Initialized');
@@ -51,6 +52,20 @@ function initMobileCareerUI() {
     let currentIndex = 0;
     let autoScrollInterval = null;
     let pauseTimeout = null;
+    let swipeHintShown = false;
+
+    // Create swipe hint overlay
+    const swipeHint = document.createElement('div');
+    swipeHint.className = 'mobile-swipe-hint';
+    swipeHint.innerHTML = `
+        <div class="swipe-hint-content">
+            <span class="swipe-hint-arrow">›</span>
+            <span class="swipe-hint-arrow">›</span>
+            <span class="swipe-hint-arrow">›</span>
+        </div>
+        <div class="swipe-hint-text">스와이프하여 넘기기</div>
+    `;
+    careerSection.appendChild(swipeHint);
 
     // Auto-scroll function
     function scrollToNext() {
@@ -75,6 +90,22 @@ function initMobileCareerUI() {
         }
         if (pauseTimeout) clearTimeout(pauseTimeout);
         pauseTimeout = setTimeout(startAutoScroll, 5000);
+
+        // Hide swipe hint on user interaction
+        swipeHint.classList.remove('visible');
+    }
+
+    // Show swipe hint once when entering career section
+    function showSwipeHint() {
+        if (swipeHintShown) return;
+        swipeHintShown = true;
+
+        swipeHint.classList.add('visible');
+
+        // Hide after 2.5 seconds
+        setTimeout(() => {
+            swipeHint.classList.remove('visible');
+        }, 2500);
     }
 
     // Listen for user scroll/touch on career area
@@ -91,6 +122,7 @@ function initMobileCareerUI() {
         entries.forEach(entry => {
             if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
                 startAutoScroll();
+                showSwipeHint(); // Show hint when section becomes visible
             } else {
                 if (autoScrollInterval) {
                     clearInterval(autoScrollInterval);
@@ -124,8 +156,9 @@ function updateCareerContent(items) {
 
         // Extract from content array
         for (const block of content) {
-            // Period pattern: 2024.07 – 2024.12 or Present (handles leading newline)
-            const periodMatch = block.match(/\s*(\d{4}\.\d{2}\s*[–-]\s*(?:\d{4}\.\d{2}|현재|Present))/i);
+            // Period pattern: 2024.07 – 2024.12 or 2023 – 2024 or Present (handles leading newline)
+            // Supports both YYYY.MM and YYYY formats
+            const periodMatch = block.match(/\s*(\d{4}(?:\.\d{2})?\s*[–-]\s*(?:\d{4}(?:\.\d{2})?|현재|Present))/i);
             if (periodMatch) period = periodMatch[1].trim();
 
             // Role from "좌하단 제목 : ..." pattern
