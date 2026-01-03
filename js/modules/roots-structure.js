@@ -163,9 +163,10 @@ export const rootsStructure = {
                             ]
                         },
                         { "name": "페이퍼백", "type": "depth3" },
-                        { "name": "퓨리스", "type": "depth3" },
+                        { "name": "퓨리스텝", "type": "depth3" },
                         { "name": "3M 영남총판 제일필름", "type": "depth3" },
-                        { "name": "GSWF PPC", "type": "depth3" }
+                        { "name": "GSWF PPC", "type": "depth3" },
+                        { "name": "철없는 자두 릴스", "type": "depth3" }
                     ]
                 },
                 { "name": "애니메이션", "type": "depth2" },
