@@ -112,7 +112,17 @@ async function downloadImage(url, filename) {
     return new Promise(resolve => {
         const fullPath = path.join(IMAGES_DIR, filename);
 
-        // Skip if already exists and valid
+        // ✅ WebP 버전이 이미 존재하면 다운로드 스킵
+        const baseName = path.parse(filename).name;
+        const webpPath = path.join(IMAGES_DIR, `${baseName}.webp`);
+        if (fs.existsSync(webpPath) && fs.statSync(webpPath).size > 1000) {
+            console.log(`   [SKIPPED_WEBP_EXISTS] ${baseName}.webp`);
+            stats.skipped++;
+            resolve(`assets/images/portfolio/${baseName}.webp`);
+            return;
+        }
+
+        // Skip if original already exists and valid
         if (fs.existsSync(fullPath) && fs.statSync(fullPath).size > 1000) {
             console.log(`   [SKIPPED_FILE_EXISTS] ${filename}`);
             stats.skipped++;
@@ -377,6 +387,11 @@ build().then(async () => {
         const baseName = path.parse(filePath).name;
         const outputPath = path.join(IMAGES_DIR, `${baseName}.webp`);
 
+        // ✅ WebP가 이미 존재하면 스킵
+        if (fs.existsSync(outputPath) && fs.statSync(outputPath).size > 1000) {
+            return 'skipped';
+        }
+
         try {
             const metadata = await sharp(filePath).metadata();
             let pipeline = sharp(filePath);
@@ -384,10 +399,10 @@ build().then(async () => {
                 pipeline = pipeline.resize(MAX_WIDTH, null, { withoutEnlargement: true });
             }
             await pipeline.webp({ quality: QUALITY }).toFile(outputPath);
-            return true;
+            return 'converted';
         } catch (err) {
             console.error(`   ❌ Convert failed: ${path.basename(filePath)} - ${err.message}`);
-            return false;
+            return 'failed';
         }
     }
 
@@ -399,15 +414,19 @@ build().then(async () => {
     console.log(`   📊 Found ${originals.length} images to convert (excluding ${gifFiles.length} GIFs)\n`);
 
     let converted = 0;
+    let skipped = 0;
     for (const file of originals) {
         const inputPath = path.join(IMAGES_DIR, file);
-        const success = await convertToWebp(inputPath);
-        if (success) {
+        const result = await convertToWebp(inputPath);
+        if (result === 'converted') {
             console.log(`   ✅ ${file} → ${path.parse(file).name}.webp`);
             converted++;
+        } else if (result === 'skipped') {
+            console.log(`   ⏭️  ${file} → WebP already exists, skipped`);
+            skipped++;
         }
     }
-    console.log(`\n   📊 Converted: ${converted}/${originals.length}\n`);
+    console.log(`\n   📊 Converted: ${converted}, Skipped: ${skipped}, Total: ${originals.length}\n`);
 
     // ===========================
     // Phase 2: Delete Originals

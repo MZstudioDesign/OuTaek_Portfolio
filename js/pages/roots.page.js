@@ -10,7 +10,7 @@
 
 import { initCanvasInteraction, zoomToCoordinates, setSkipAutoFit } from '../modules/canvas-interaction.js';
 import { loadPortfolioData } from '../modules/roots-data.js';
-import { rootsStructure } from '../modules/roots-structure.js';
+import { loadRootsStructure } from '../modules/roots-structure-loader.js';
 import { calculateMindmapLayout } from '../modules/mindmap-layout.js';
 import { renderBeliefsContent } from '../modules/beliefs-renderer.js';
 import {
@@ -36,7 +36,11 @@ export async function initRootsPage() {
     // 3. Prepare Data Map for quick lookup
     const dataMap = createDataMap(portfolioData);
 
-    // 4. Calculate Layout positions
+    // 4. Load Roots Structure (노션에서 로드, 실패 시 하드코딩된 구조 사용)
+    const rootsStructure = await loadRootsStructure();
+    console.log(`[Roots Page] Structure loaded: "${rootsStructure.name}" with ${rootsStructure.children?.length || 0} children`);
+
+    // 5. Calculate Layout positions
     const { nodes, links } = calculateMindmapLayout(rootsStructure, {
         radiusStep: 450,
         startAngle: 0,
