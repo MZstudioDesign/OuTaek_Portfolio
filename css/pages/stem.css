@@ -1072,4 +1072,9 @@
         color: rgba(255, 255, 255, 0.8);
         letter-spacing: 0.1em;
     }
+
+    /* 모바일에서 라운드니스 제거 */
+    .scatter-item {
+        border-radius: 0;
+    }
 }

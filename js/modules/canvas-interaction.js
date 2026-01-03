@@ -218,8 +218,12 @@ export function setSkipAutoFit(value) {
 
 /**
  * Programmatically zoom to specific coordinates
+ * @param {number} targetX - X coordinate
+ * @param {number} targetY - Y coordinate  
+ * @param {number} targetScale - Target zoom level
+ * @param {boolean} animated - Whether to animate the transition (default: true)
  */
-export function zoomToCoordinates(targetX, targetY, targetScale = 1.0) {
+export function zoomToCoordinates(targetX, targetY, targetScale = 1.0, animated = true) {
     const wrapper = document.getElementById('canvas-wrapper');
     const content = document.getElementById('canvas-content');
 
@@ -239,7 +243,10 @@ export function zoomToCoordinates(targetX, targetY, targetScale = 1.0) {
 
     // Update Transform logic
     const zoomLevel = document.querySelector('.zoom-level');
-    content.style.transition = 'transform 1s cubic-bezier(0.16, 1, 0.3, 1)';
+    // animated가 false면 애니메이션 없이 즉시 적용
+    content.style.transition = animated
+        ? 'transform 1s cubic-bezier(0.16, 1, 0.3, 1)'
+        : 'none';
     content.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
     if (zoomLevel) {
         zoomLevel.textContent = `${Math.round(scale * 100)}%`;

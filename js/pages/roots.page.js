@@ -49,14 +49,13 @@ export async function initRootsPage() {
     // 6. Init Modal Events
     initModalEvents(dataMap);
 
-    // 7. Initial Zoom to "My Beliefs"
+    // 7. Initial Zoom to \"My Beliefs\" - 처음부터 가운데에서 시작 (애니메이션 없음)
     const beliefsNode = nodes.find(n => n.data.name === '나의 신념' || n.data.name === 'My Beliefs');
     if (beliefsNode) {
         // Prevent auto fitToView from overriding our zoom
         setSkipAutoFit(true);
-        setTimeout(() => {
-            zoomToCoordinates(beliefsNode.x, beliefsNode.y, 1.2);
-        }, 300);
+        // 애니메이션 없이 즉시 위치 설정 (animated=false)
+        zoomToCoordinates(beliefsNode.x, beliefsNode.y, 1.2, false);
     }
 }
 

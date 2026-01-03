@@ -147,12 +147,35 @@
         display: none;
     }
 
-    /* Modal */
+    /* Modal - 모바일 공간 최대화 */
+    .page-modal {
+        padding: 0;
+        /* 외곽 마진 제거 */
+    }
+
     .modal-content {
-        width: 95%;
-        max-height: 90vh;
-        padding: var(--space-sm);
-        border-radius: var(--border-radius-md);
+        width: 100%;
+        max-width: 100%;
+        max-height: 100vh;
+        height: 100vh;
+        padding: 0;
+        border-radius: 0;
+        /* 라운드니스 제거 */
+    }
+
+    .modal-header {
+        padding: 16px 16px 12px;
+    }
+
+    .modal-body {
+        padding: 12px 16px 20px;
+    }
+
+    .modal-close {
+        top: 12px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
     }
 
     .modal-title {
@@ -160,7 +183,11 @@
     }
 
     .modal-images img {
-        max-height: 200px;
+        /* 원본 비율 유지 - max-height 제거 */
+        height: auto;
+        object-fit: contain;
+        /* 모바일에서 라운드니스 제거 */
+        border-radius: 0;
     }
 
     /* CTA Buttons */

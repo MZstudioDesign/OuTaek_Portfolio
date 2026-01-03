@@ -1045,6 +1045,19 @@
         height: 35px;
         font-size: 1rem;
     }
+
+    /* 모바일에서 라운드니스 제거 - 모든 이미지/갤러리/카드 */
+    .gallery-item,
+    .gallery-thumb,
+    .detail-img,
+    .link-toast,
+    .link-toast-thumb,
+    .video-toast-card,
+    .video-iframe-wrapper,
+    .video-container,
+    .novel-inline-img {
+        border-radius: 0;
+    }
 }
 
 /* ========================================
